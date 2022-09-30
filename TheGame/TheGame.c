@@ -3,11 +3,17 @@
 
 #include "framework.h"
 #include "TheGame.h"
+#include <windows.h>
+#include  "strsafe.h"
 
 
 #define MAX_LOADSTRING 100
 #define ID_HOTKEY 1
 #define ID_HOTKEY2 2
+
+#define IDM_FILE_NEW 1
+#define IDM_FILE_OPEN 2
+#define IDM_FILE_QUIT 3
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -21,6 +27,11 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 void CenterWindow(HWND);
+HWND hwndSta1;
+HWND hwndSta2;
+void CreateLabels(HWND);
+void AddMenus(HWND);
+
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -132,12 +143,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    wchar_t buf[10];
+    RECT rect;
     switch (message)
     {
     case WM_CREATE:
 
         RegisterHotKey(hWnd, ID_HOTKEY, MOD_CONTROL, 0x43);
         RegisterHotKey(hWnd, ID_HOTKEY2, MOD_SHIFT, VK_F10);
+        CreateLabels(hWnd);
+        AddMenus(hWnd);
         break;
     case WM_KEYDOWN:
 
@@ -154,12 +169,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         break;
     case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
+
+        switch (LOWORD(wParam)) {
+
+        case IDM_FILE_NEW:
+        case IDM_FILE_OPEN:
+
+            MessageBeep(MB_ICONINFORMATION);
+            break;
+
+        case IDM_FILE_QUIT:
+
+            SendMessage(hWnd, WM_CLOSE, 0, 0);
+            break;
+        case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
             case IDM_EXIT:
@@ -167,9 +190,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
-            }
         }
+
         break;
+    case WM_MOVE:
+
+        GetWindowRect(hWnd, &rect);
+
+        StringCbPrintfW(buf,sizeof(buf), L"%ld", rect.left);
+        SetWindowTextW(hwndSta1, buf);
+
+        StringCbPrintfW(buf, sizeof(buf), L"%ld", rect.top);
+        SetWindowTextW(hwndSta2, buf);
+
+        break;
+
     case WM_HOTKEY:
     {
         if ((wParam) == ID_HOTKEY) {
@@ -211,6 +246,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+void CreateLabels(HWND hwnd) {
+
+    CreateWindowW(L"static", L"x: ",
+        WS_CHILD | WS_VISIBLE,
+        10, 10, 25, 25,
+        hwnd, (HMENU)1, NULL, NULL);
+
+    hwndSta1 = CreateWindowW(L"static", L"150",
+        WS_CHILD | WS_VISIBLE,
+        40, 10, 55, 25,
+        hwnd, (HMENU)2, NULL, NULL);
+
+    CreateWindowW(L"static", L"y: ",
+        WS_CHILD | WS_VISIBLE,
+        10, 30, 25, 25,
+        hwnd, (HMENU)3, NULL, NULL);
+
+    hwndSta2 = CreateWindowW(L"static", L"150",
+        WS_CHILD | WS_VISIBLE,
+        40, 30, 55, 25,
+        hwnd, (HMENU)4, NULL, NULL);
+}
+
 // Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -243,4 +301,20 @@ void CenterWindow(HWND hwnd) {
 
     SetWindowPos(hwnd, HWND_TOP, (screen_w - win_w) / 2,
         (screen_h - win_h) / 2, 0, 0, SWP_NOSIZE);
+}
+void AddMenus(HWND hwnd) {
+
+    HMENU hMenubar;
+    HMENU hMenu;
+
+    hMenubar = CreateMenu();
+    hMenu = CreateMenu();
+
+    AppendMenuW(hMenu, MF_STRING, IDM_FILE_NEW, L"&New");
+    AppendMenuW(hMenu, MF_STRING, IDM_FILE_OPEN, L"&Open");
+    AppendMenuW(hMenu, MF_SEPARATOR, 0, NULL);
+    AppendMenuW(hMenu, MF_STRING, IDM_FILE_QUIT, L"&Quit");
+
+    AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
+    SetMenu(hwnd, hMenubar);
 }
