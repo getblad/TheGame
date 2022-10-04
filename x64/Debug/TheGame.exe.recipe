@@ -2,7 +2,11 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
+<<<<<<< HEAD:TheGame/x64/Debug/TheGame.exe.recipe
       <FullPath>C:\Users\Nikolai\source\repos\TheGame\x64\Debug\TheGame.exe</FullPath>
+=======
+      <FullPath>D:\Users\pavel\Source\Repos\TheGame\x64\Debug\TheGame.exe</FullPath>
+>>>>>>> 306e9fda25f3c1dff40647b3771d01c5872be70c:x64/Debug/TheGame.exe.recipe
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

@@ -1,2 +1,10 @@
 ﻿  TheGame.c
-  TheGame.vcxproj -> C:\Users\Admin\masa-introduction\The Game\TheGame\x64\Debug\TheGame.exe
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(206,57): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(212,17): warning C4047: 'function': 'HDC' differs in levels of indirection from 'int'
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(212,14): warning C4024: 'Controls': different types for formal and actual parameter 1
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(259,13): warning C4101: 'oldBitmap': unreferenced local variable
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(256,17): warning C4101: 'ps': unreferenced local variable
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(333,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(493,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(493,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+  TheGame.vcxproj -> C:\Users\Nikolai\source\repos\TheGame\x64\Debug\TheGame.exe
