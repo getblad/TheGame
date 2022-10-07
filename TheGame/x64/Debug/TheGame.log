@@ -1,2 +1,8 @@
 ﻿  TheGame.c
+C:\Users\Nikolai\source\repos\getblad\TheGame\TheGame\TheGame.c(77,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Nikolai\source\repos\getblad\TheGame\TheGame\TheGame.c(78,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Nikolai\source\repos\getblad\TheGame\TheGame\TheGame.c(79,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Nikolai\source\repos\getblad\TheGame\TheGame\TheGame.c(80,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Nikolai\source\repos\getblad\TheGame\TheGame\TheGame.c(83,45): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
+C:\Users\Nikolai\source\repos\getblad\TheGame\TheGame\TheGame.c(83,67): warning C4244: 'function': conversion from 'double' to 'float', possible loss of data
   TheGame.vcxproj -> C:\Users\Nikolai\source\repos\getblad\TheGame\x64\Debug\TheGame.exe

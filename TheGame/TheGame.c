@@ -1,5 +1,8 @@
 // TheGame.cpp : Defines the entry point for the application.
 //
+#pragma comment(linker, "\"/manifestdependency:type='Win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #include "framework.h"
 #include "TheGame.h"
@@ -14,6 +17,102 @@
 #define IDM_FILE_NEW 1
 #define IDM_FILE_OPEN 2
 #define IDM_FILE_QUIT 3
+
+typedef struct SPoint {
+    float x, y;
+} TPoint ;
+
+TPoint point(float x, float y) {
+    TPoint pt;
+    pt.x = x;
+    pt.y = y;
+    return pt;
+}
+
+typedef struct SObject {
+    TPoint pos;
+    TPoint size;
+    COLORREF brush;
+    TPoint speed;
+} TObject;
+
+void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height) {
+    obj -> pos = point(xPos, yPos);
+    obj->size = point(width, height);
+    obj->brush = RGB(200, 0, 255);
+    obj->speed = point(0,0);
+}
+
+void ObjectShow(TObject obj, HDC dc)
+{
+    SelectObject(dc, GetStockObject(DC_PEN));
+    SetDCPenColor(dc, RGB(0, 0, 0));
+    SelectObject(dc, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(dc, obj.brush);
+    Rectangle(dc, (int)(obj.pos.x), (int)(obj.pos.y), 
+        (int)(obj.pos.x + obj.size.x), (int)(obj.pos.y + obj.size.y));
+}
+
+void Move(TObject* obj)
+{
+    if (obj->pos.x + obj->speed.x > 0 && obj->pos.x + obj->speed.x < 1265 - obj->size.x)
+    {
+        obj->pos.x += obj->speed.x;
+    }
+    if (obj->pos.y + obj->speed.y > 0 && obj->pos.y + obj->speed.y < 665 - obj->size.y)
+    {
+        obj->pos.y += obj->speed.y;
+    }
+    
+
+}
+
+TObject player;
+int playerSpeed = 5;
+
+void Controls()
+{
+    player.speed.x = 0;
+    player.speed.y = 0;
+    if (GetKeyState('W') < 0) player.speed.y = -playerSpeed;
+    if (GetKeyState('A') < 0) player.speed.x = -playerSpeed;
+    if (GetKeyState('S') < 0) player.speed.y = playerSpeed;
+    if (GetKeyState('D') < 0) player.speed.x = playerSpeed;
+    if (player.speed.x != 0 && player.speed.y != 0)
+    {
+        player.speed = point(player.speed.x * 0.7, player.speed.y * 0.7);
+    }
+
+}
+
+
+RECT rect;
+
+void WinInitial()
+{
+    ObjectInit(&player, 100, 100, 100, 100);
+}
+
+void CharMove() {
+    Controls();
+    Move(&player); 
+
+}
+
+void Draw(HDC dc) {
+    HDC memDC = CreateCompatibleDC(dc);
+    HBITMAP memBM = CreateCompatibleBitmap(dc,rect.right- rect.left, rect.bottom - rect.top );
+    SelectObject(memDC, memBM);
+    SelectObject(memDC, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(memDC, RGB(255, 255, 255));
+    Rectangle(memDC, 0, 0, 1280, 720);
+    ObjectShow(player, memDC);
+    
+    BitBlt(dc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, memDC, 0, 0, SRCCOPY);
+    DeleteDC(memDC);
+    DeleteObject(memBM);
+
+}
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -52,23 +151,40 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
+ /*   if (!InitInstance (hInstance, nCmdShow))
     {
         return FALSE;
-    }
+    }*/
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+       20, 10, 1280, 720, NULL, NULL, hInstance, NULL);
+
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
+
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_THEGAME));
 
     MSG msg;
+    HDC hdc = GetDC(hWnd);
 
+    WinInitial();
+    
     // Main message loop:
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (1)
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
+       
+        while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+      
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+        if (msg.message == WM_QUIT) {
+            break;
+        }
+        CharMove();
+        Draw(hdc);
+
+
     }
 
     return (int) msg.wParam;
@@ -84,7 +200,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
     WNDCLASSEXW wcex;
-    HBRUSH backgroundColor = CreateSolidBrush(RGB(0, 128, 255));
+    HBRUSH backgroundColor = CreateSolidBrush(RGB(100, 100, 100));
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
@@ -144,14 +260,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     wchar_t buf[10];
-    RECT rect;
     switch (message)
     {
     case WM_CREATE:
 
         RegisterHotKey(hWnd, ID_HOTKEY, MOD_CONTROL, 0x43);
         RegisterHotKey(hWnd, ID_HOTKEY2, MOD_SHIFT, VK_F10);
-        CreateLabels(hWnd);
+        //CreateLabels(hWnd);
+
         AddMenus(hWnd);
         break;
     case WM_KEYDOWN:
@@ -288,6 +404,8 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return (INT_PTR)FALSE;
 }
+
+
 void CenterWindow(HWND hwnd) {
 
     RECT rc = { 0 };
@@ -317,4 +435,27 @@ void AddMenus(HWND hwnd) {
 
     AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"&File");
     SetMenu(hwnd, hMenubar);
+}
+
+//void Snake(HWND hwnd) {
+//    HDC hdc;
+//    PAINTSTRUCT ps;
+//    hdc = BeginPaint(hwnd, &ps);
+//
+//    MoveToEx(hdc, 50, 50, NULL);
+//    LineTo(hdc, 250, 50);
+//
+//    HPEN hWhitePen = GetStockObject(WHITE_PEN);
+//    HPEN hOldPen = SelectObject(hdc, hWhitePen);
+//
+//    MoveToEx(hdc, 50, 100, NULL);
+//    LineTo(hdc, 250, 100);
+//
+//    SelectObject(hdc, hOldPen);
+//
+//    EndPaint(hwnd, &ps);
+//}
+void PlayerControl() {
+    static int playerSpeed = 4;
+
 }
