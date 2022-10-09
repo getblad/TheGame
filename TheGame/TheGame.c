@@ -118,6 +118,16 @@ void Move(TObject* obj)
 
 void Controls()
 {
+    if (player.pos.y < 11 || player.pos.y > 637) { 
+        player.direction = direction(0, 0, 0, 0);
+        Sleep(500);
+        //Collision();
+    }
+    if (player.pos.x < 11 || player.pos.x > 1235) {
+        player.direction = direction(0, 0, 0, 0);
+        Sleep(500);
+        //Collision();
+    }
     if (GetKeyState('W') < 0 && (player.direction.down != 1)) player.direction = direction(1, 0, 0, 0);
     if (GetKeyState('A') < 0 && (player.direction.right != 1)) player.direction = direction(0, 0, 1, 0);
     if (GetKeyState('S') < 0 && (player.direction.up != 1)) player.direction = direction(0, 1, 0, 0);
@@ -172,6 +182,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 void CenterWindow(HWND);
 HWND hwndSta1;
 HWND hwndSta2;
+HBITMAP hbtm;
 void CreateLabels(HWND);
 void AddMenus(HWND);
 
@@ -180,6 +191,7 @@ void update(HDC hdc) {
     Draw(hdc);
 }
 
+void LoadImageBtm(HWND hwnd, wchar_t path[]);
 //void gameOver(hwnd) {
 //    Beep(350, 300);
 //    HWND hwndButton = CreateWindowW(
@@ -249,8 +261,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             newGame = FALSE;
         };
         update(hdc);
-
-
     }
 
     return (int) msg.wParam;

@@ -1,5 +1,5 @@
 ﻿  TheGame.c
-D:\Users\pavel\Source\Repos\TheGame\TheGame\TheGame.c(379,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
-D:\Users\pavel\Source\Repos\TheGame\TheGame\TheGame.c(379,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
-D:\Users\pavel\Source\Repos\TheGame\TheGame\TheGame.c(372,13): warning C4101: 'buf': unreferenced local variable
+D:\Users\pavel\Source\Repos\TheGame\TheGame\TheGame.c(389,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+D:\Users\pavel\Source\Repos\TheGame\TheGame\TheGame.c(389,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+D:\Users\pavel\Source\Repos\TheGame\TheGame\TheGame.c(382,13): warning C4101: 'buf': unreferenced local variable
   TheGame.vcxproj -> D:\Users\pavel\Source\Repos\TheGame\x64\Debug\TheGame.exe
