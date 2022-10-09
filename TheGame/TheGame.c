@@ -127,17 +127,20 @@ void Move(TObject* obj)
     }
 }
 
-void Controls()
+void Controls(HDC hdc)
 {
     if (player.pos.y < 11 || player.pos.y > 637) {
         player.direction = direction(0, 0, 0, 0);
         Sleep(500);
-        //gameOver(hdc);
+        gameOver(hdc);
+       
+
     }
     if (player.pos.x < 11 || player.pos.x > 1235) {
         player.direction = direction(0, 0, 0, 0);
         Sleep(500);
-        //gameOver(hdc);
+        gameOver(hdc);
+        
     }
     if (GetKeyState('W') < 0 && (player.direction.down != 1)) player.direction = direction(1, 0, 0, 0);
     if (GetKeyState('A') < 0 && (player.direction.right != 1)) player.direction = direction(0, 0, 1, 0);
@@ -154,8 +157,8 @@ void WinInitial()
     ObjectInit(&player, 500, 500, 20, 10);
 }
 
-void CharMove() {
-    Controls();
+void CharMove(HDC hdc) {
+    Controls(hdc);
     Move(&player); 
 
 }
@@ -193,7 +196,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 
 void update(HDC hdc) {
-    CharMove();
+    CharMove(hdc);
     Draw(hdc);
 }
 void LoadImageBtm(HDC hdc, wchar_t path[]) {
@@ -205,7 +208,7 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
 
     hbtm = LoadImageW(NULL, path,
         IMAGE_BITMAP, 1280, 720, LR_LOADFROMFILE);
-    hdc = BeginPaint(hWnd, &ps);
+   
     hdcMem = CreateCompatibleDC(hdc);
     oldBitmap = SelectObject(hdcMem, hbtm);
     GetObject(hbtm, sizeof(bitmap), &bitmap);
@@ -213,13 +216,15 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
         hdcMem, 0, 0, SRCCOPY);
     SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
-    EndPaint(hWnd, &ps);
+    
 }
 
 void gameOver(HDC hdc) {
     wchar_t diescreen[] = L"C:\\Users\\Nikolai\\source\\repos\\TheGame\\dieimg.bmp";
     LoadImageBtm(hdc, diescreen);
-    //Beep(350, 300);
+    Beep(1000, 3000);    
+    newGame = TRUE;
+    
     //HWND hwndButton = CreateWindowW(
     //    L"BUTTON",  // Predefined class; Unicode assumed 
     //    L"Restart",      // Button text 
@@ -516,6 +521,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
     default:
+        DeleteDC(hdcMem);
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
