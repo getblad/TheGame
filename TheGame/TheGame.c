@@ -12,7 +12,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #define MAX_LOADSTRING 100
 #define ID_HOTKEY 1
-#define ID_HOTKEY2 2
+#define ID_RESTART 2
 
 #define IDM_FILE_NEW 1
 #define IDM_FILE_OPEN 2
@@ -67,12 +67,14 @@ void ObjectShow(TObject obj, HDC dc)
     Rectangle(dc, (int)(obj.pos.x), (int)(obj.pos.y), 
         (int)(obj.pos.x + obj.size.x), (int)(obj.pos.y + obj.size.y));
 }
+void Collision(void);
 
 TObject player;
 int playerSpeed = 1;
 BOOL newGame = FALSE;
 HBITMAP hbtm;
-HWND hwnd;
+HWND hWnd;
+HDC hdc;
 
 void Move(TObject* obj)
 {
@@ -120,6 +122,16 @@ void Move(TObject* obj)
 
 void Controls()
 {
+    if (player.pos.y < 11 || player.pos.y > 637) {
+        player.direction = direction(0, 0, 0, 0);
+        Sleep(500);
+        Collision();
+    }
+    if (player.pos.x < 11 || player.pos.x > 1235) {
+        player.direction = direction(0, 0, 0, 0);
+        Sleep(500);
+        Collision();
+    }
     if (GetKeyState('W') < 0 && (player.direction.down != 1)) player.direction = direction(1, 0, 0, 0);
     if (GetKeyState('A') < 0 && (player.direction.right != 1)) player.direction = direction(0, 0, 1, 0);
     if (GetKeyState('S') < 0 && (player.direction.up != 1)) player.direction = direction(0, 1, 0, 0);
@@ -172,10 +184,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 void CenterWindow(HWND);
-HWND hwndSta1;
-HWND hwndSta2;
 void CreateLabels(HWND);
 void AddMenus(HWND);
+HWND hWnd;
 
 void update(HDC hdc) {
     CharMove();
@@ -190,7 +201,7 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
 
     hbtm = LoadImageW(NULL, path,
         IMAGE_BITMAP, 1280, 720, LR_LOADFROMFILE);
-    hdc = BeginPaint(hwnd, &ps);
+    hdc = BeginPaint(hWnd, &ps);
     hdcMem = CreateCompatibleDC(hdc);
     oldBitmap = SelectObject(hdcMem, hbtm);
     GetObject(hbtm, sizeof(bitmap), &bitmap);
@@ -198,11 +209,11 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
         hdcMem, 0, 0, SRCCOPY);
     SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
-    EndPaint(hwnd, &ps);
+    EndPaint(hWnd, &ps);
 }
 
 void gameOver(HDC hdc) {
-    wchar_t diescreen[] = L"C:\\Users\\Nikolai\\source\\repos\\getblad\\TheGame\\dieimg.bmp";
+    wchar_t diescreen[] = L"C:\\Users\\Nikolai\\source\\repos\\TheGame\\dieimg.bmp";
     LoadImageBtm(hdc, diescreen);
     //Beep(350, 300);
     //HWND hwndButton = CreateWindowW(
@@ -242,13 +253,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }*/
-    hwnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
+    hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
        20, 10, 1280, 720, NULL, NULL, hInstance, NULL);
 
-    ShowWindow(hwnd, nCmdShow);
-    UpdateWindow(hwnd);
+    ShowWindow(hWnd, WS_MAXIMIZE);
+    UpdateWindow(hWnd);
 
-    HDC hdc = GetDC(hwnd);
+    hdc = GetDC(hWnd);
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_THEGAME));
 
     MSG msg;
@@ -259,8 +270,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     
     // Main message loop:
     while (1)
-    {
-       
+    {  
         while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
       
             TranslateMessage(&msg);
@@ -274,8 +284,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             newGame = FALSE;
         };
         update(hdc);
-
-
     }
 
     return (int) msg.wParam;
@@ -290,8 +298,6 @@ void Boarders(HDC hdc)
     brush.lbStyle = BS_SOLID;
     brush.lbColor = col;
     brush.lbHatch = 0;
-
-    
 
     HPEN hPen1 = ExtCreatePen(pen_style, 8, &brush, 0, NULL);
     HPEN holdPen = SelectObject(hdc, hPen1);
@@ -364,23 +370,23 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   hInst = hInstance; // Store instance handle in our global variable
-
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
-}
+//BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+//{
+//   hInst = hInstance; // Store instance handle in our global variable
+//
+//   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+//      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+//
+//   if (!hWnd)
+//   {
+//      return FALSE;
+//   }
+//
+//   ShowWindow(hWnd, nCmdShow);
+//   UpdateWindow(hWnd);
+//
+//   return TRUE;
+//}
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -395,13 +401,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     //wchar_t buf[10];
-    HDC hdc = CreateCompatibleDC(hWnd);
+    
     switch (message)
     {
     case WM_CREATE:
 
-        RegisterHotKey(hwnd, ID_HOTKEY, MOD_CONTROL, 0x43);
-        RegisterHotKey(hwnd, ID_HOTKEY2, NULL, 0x52);
+        RegisterHotKey(hWnd, ID_HOTKEY, MOD_CONTROL, 0x43);
+        RegisterHotKey(hWnd, ID_RESTART, NULL, 0x52);
         //CreateLabels(hWnd);
         GetWindowRect(hWnd, &rect);
         AddMenus(hWnd);
@@ -476,7 +482,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }       
             break;
         }
-        if ((wParam) == ID_HOTKEY2) {
+        if ((wParam) == ID_RESTART) {
 
             gameOver(hdc);
             Sleep(3000);
@@ -487,8 +493,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     }
     case WM_PAINT:
-        {
-            
+        {   
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             
@@ -504,6 +509,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
+}
+
+void Collision() {
+
 }
 
 //void CreateLabels(HWND hwnd) {

@@ -1,5 +1,4 @@
 ﻿  TheGame.c
-C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(398,38): warning C4133: 'function': incompatible types - from 'HWND' to 'HDC'
-C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(404,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
-C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(404,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
-  TheGame.vcxproj -> C:\Users\Nikolai\source\repos\TheGame\x64\Debug\TheGame.exe
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(410,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(410,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+LINK : fatal error LNK1104: cannot open file 'C:\Users\Nikolai\source\repos\TheGame\x64\Debug\TheGame.exe'
