@@ -219,7 +219,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }*/
-    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
        20, 10, 1280, 720, NULL, NULL, hInstance, NULL);
 
     ShowWindow(hWnd, nCmdShow);
@@ -304,30 +304,31 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
-void RegisterDeathScreen(void) {
-
-    HBRUSH hbrush = CreateSolidBrush(RGB(90, 90, 90));
-
-    WNDCLASSW rwc = { 0 };
-
-    rwc.lpszClassName = L"DeathScreen";
-    rwc.hbrBackground = hbrush;
-    rwc.lpfnWndProc = DeathScreenProc;
-    rwc.hCursor = LoadCursor(0, IDC_ARROW);
-    RegisterClassW(&rwc);
-}
-
-LRESULT CALLBACK DeathScreenProc(HWND hwnd, UINT msg,
-    WPARAM wParam, LPARAM lParam)
-{
-    switch (msg) {
-
-        case WM_LBUTTONUP:
-            newGame = TRUE;
-            break;
-
-    return DefWindowProcW(hwnd, msg, wParam, lParam);
-}
+//void RegisterDeathScreen(void) {
+//
+//    HBRUSH hbrush = CreateSolidBrush(RGB(90, 90, 90));
+//
+//    WNDCLASSW rwc = { 0 };
+//
+//    rwc.lpszClassName = L"RedPanelClass";
+//    rwc.hbrBackground = hbrush;
+//    rwc.lpfnWndProc = DeathScreenProc;
+//    rwc.hCursor = LoadCursor(0, IDC_ARROW);
+//    RegisterClassW(&rwc);
+//}
+//
+//LRESULT CALLBACK DeathScreenProc(HWND hwnd, UINT msg,
+//    WPARAM wParam, LPARAM lParam)
+//{
+//    switch (msg) {
+//
+//    case WM_LBUTTONUP:
+//        newGame = TRUE;
+//        break;
+//
+//        return DefWindowProcW(hwnd, msg, wParam, lParam);
+//    };
+//}
 
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
