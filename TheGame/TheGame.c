@@ -71,6 +71,8 @@ void ObjectShow(TObject obj, HDC dc)
 TObject player;
 int playerSpeed = 1;
 BOOL newGame = FALSE;
+HBITMAP hbtm;
+HWND hwnd;
 
 void Move(TObject* obj)
 {
@@ -179,21 +181,42 @@ void update(HDC hdc) {
     CharMove();
     Draw(hdc);
 }
+void LoadImageBtm(HDC hdc, wchar_t path[]) {
 
-void gameOver(hwnd) {
-    Beep(350, 300);
-    HWND hwndButton = CreateWindowW(
-        L"BUTTON",  // Predefined class; Unicode assumed 
-        L"Restart",      // Button text 
-        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
-        10,         // x position 
-        10,         // y position 
-        100,        // Button width
-        100,        // Button height
-        hwnd,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-        NULL);
+    PAINTSTRUCT ps;
+    BITMAP bitmap;
+    HDC hdcMem;
+    HGDIOBJ oldBitmap;
+
+    hbtm = LoadImageW(NULL, path,
+        IMAGE_BITMAP, 1280, 720, LR_LOADFROMFILE);
+    hdc = BeginPaint(hwnd, &ps);
+    hdcMem = CreateCompatibleDC(hdc);
+    oldBitmap = SelectObject(hdcMem, hbtm);
+    GetObject(hbtm, sizeof(bitmap), &bitmap);
+    BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight,
+        hdcMem, 0, 0, SRCCOPY);
+    SelectObject(hdcMem, oldBitmap);
+    DeleteDC(hdcMem);
+    EndPaint(hwnd, &ps);
+}
+
+void gameOver(HDC hdc) {
+    wchar_t diescreen[] = L"C:\\Users\\Nikolai\\source\\repos\\getblad\\TheGame\\dieimg.bmp";
+    LoadImageBtm(hdc, diescreen);
+    //Beep(350, 300);
+    //HWND hwndButton = CreateWindowW(
+    //    L"BUTTON",  // Predefined class; Unicode assumed 
+    //    L"Restart",      // Button text 
+    //    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+    //    10,         // x position 
+    //    10,         // y position 
+    //    100,        // Button width
+    //    100,        // Button height
+    //    hwnd,     // Parent window
+    //    NULL,       // No menu.
+    //    (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+    //    NULL);
 
 }
 
@@ -219,19 +242,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }*/
-    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
+    hwnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
        20, 10, 1280, 720, NULL, NULL, hInstance, NULL);
 
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
+    ShowWindow(hwnd, nCmdShow);
+    UpdateWindow(hwnd);
 
-    HDC hdc = GetDC(hWnd);
+    HDC hdc = GetDC(hwnd);
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_THEGAME));
 
     MSG msg;
 
     WinInitial();
-    update(hdc);
+    //update(hdc);
+   
     
     // Main message loop:
     while (1)
@@ -370,14 +394,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    wchar_t buf[10];
-    HDC hdc = GetDC(hWnd);
+    //wchar_t buf[10];
+    HDC hdc = CreateCompatibleDC(hWnd);
     switch (message)
     {
     case WM_CREATE:
 
-        RegisterHotKey(hWnd, ID_HOTKEY, MOD_CONTROL, 0x43);
-        RegisterHotKey(hWnd, ID_HOTKEY2, NULL, 0x52);
+        RegisterHotKey(hwnd, ID_HOTKEY, MOD_CONTROL, 0x43);
+        RegisterHotKey(hwnd, ID_HOTKEY2, NULL, 0x52);
         //CreateLabels(hWnd);
         GetWindowRect(hWnd, &rect);
         AddMenus(hWnd);
@@ -394,12 +418,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SendMessage(hWnd, WM_CLOSE, 0, 0);
             }
         }
-
         break;
     case WM_COMMAND:
 
         switch (LOWORD(wParam)) {
-
         case IDM_FILE_NEW:
 
             newGame = TRUE;
@@ -456,6 +478,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         if ((wParam) == ID_HOTKEY2) {
 
+            gameOver(hdc);
+            Sleep(3000);
             newGame = TRUE;
             break;
 
@@ -467,8 +491,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
+            
             HPEN hPen = CreatePen(PS_SOLID, 4, RGB(255, 128, 0));
-
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }
