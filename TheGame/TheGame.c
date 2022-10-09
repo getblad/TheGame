@@ -180,22 +180,21 @@ void update(HDC hdc) {
     Draw(hdc);
 }
 
-void gameOver(hwnd) {
-    Beep(350, 300);
-    HWND hwndButton = CreateWindowW(
-        L"BUTTON",  // Predefined class; Unicode assumed 
-        L"Restart",      // Button text 
-        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
-        10,         // x position 
-        10,         // y position 
-        100,        // Button width
-        100,        // Button height
-        hwnd,     // Parent window
-        NULL,       // No menu.
-        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-        NULL);
-
-}
+//void gameOver(hwnd) {
+//    Beep(350, 300);
+//    HWND hwndButton = CreateWindowW(
+//        L"BUTTON",  // Predefined class; Unicode assumed 
+//        L"Restart",      // Button text 
+//        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+//        10,         // x position 
+//        10,         // y position 
+//        100,        // Button width
+//        100,        // Button height
+//        hwnd,     // Parent window
+//        NULL,       // No menu.
+//        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+//        NULL);
+//}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -205,7 +204,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    MessageBoxW(NULL, L"TheBestGameEVER!!", L"First", MB_OK);
+    MessageBoxW(NULL, L"TheBestGameEVER!!", L"Welcome", MB_OK);
 
     // TODO: Place code here.
 
@@ -304,30 +303,31 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
-void RegisterDeathScreen(void) {
+//void RegisterDeathScreen(void) {
+//
+//    HBRUSH hbrush = CreateSolidBrush(RGB(90, 90, 90));
+//
+//    WNDCLASSW rwc = { 0 };
+//
+//    rwc.lpszClassName = L"DeathScreen";
+//    rwc.hbrBackground = hbrush;
+//    rwc.lpfnWndProc = DeathScreenProc;
+//    rwc.hCursor = LoadCursor(0, IDC_ARROW);
+//    RegisterClassW(&rwc);
+//}
 
-    HBRUSH hbrush = CreateSolidBrush(RGB(90, 90, 90));
-
-    WNDCLASSW rwc = { 0 };
-
-    rwc.lpszClassName = L"DeathScreen";
-    rwc.hbrBackground = hbrush;
-    rwc.lpfnWndProc = DeathScreenProc;
-    rwc.hCursor = LoadCursor(0, IDC_ARROW);
-    RegisterClassW(&rwc);
-}
-
-LRESULT CALLBACK DeathScreenProc(HWND hwnd, UINT msg,
-    WPARAM wParam, LPARAM lParam)
-{
-    switch (msg) {
-
-        case WM_LBUTTONUP:
-            newGame = TRUE;
-            break;
-
-    return DefWindowProcW(hwnd, msg, wParam, lParam);
-}
+//LRESULT CALLBACK DeathScreenProc(HWND hwnd, UINT msg,
+//    WPARAM wParam, LPARAM lParam)
+//{
+//    switch (msg) {
+//
+//    case WM_LBUTTONUP:
+//        newGame = TRUE;
+//        break;
+//
+//        return DefWindowProcW(hwnd, msg, wParam, lParam);
+//    }
+//}
 
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
