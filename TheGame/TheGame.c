@@ -77,33 +77,53 @@ void Move(TObject* obj)
     if (obj -> direction.up)
     {
         obj->pos.y -= playerSpeed;
+        if (player.size.x > player.size.y)
+        {
+            player.size.x = player.size.x + player.size.y;
+            player.size.y = player.size.x - player.size.y;
+            player.size.x = player.size.x - player.size.y;
+        }
     }
     if (obj->direction.down)
     {
         obj->pos.y += playerSpeed;
+        if (player.size.x > player.size.y)
+        {
+            player.size.x = player.size.x + player.size.y;
+            player.size.y = player.size.x - player.size.y;
+            player.size.x = player.size.x - player.size.y;
+        };
     }
     if (obj->direction.left)
     {
         obj->pos.x -= playerSpeed;
+        if (player.size.x < player.size.y)
+        {
+            player.size.x = player.size.x + player.size.y;
+            player.size.y = player.size.x - player.size.y;
+            player.size.x = player.size.x - player.size.y;
+        }
     }
     if (obj->direction.right)
     {
         obj->pos.x += playerSpeed;
+        if (player.size.x < player.size.y)
+        {
+            player.size.x = player.size.x + player.size.y;
+            player.size.y = player.size.x - player.size.y;
+            player.size.x = player.size.x - player.size.y;
+        }
     }
 }
 
 void Controls()
 {
-    if (GetKeyState('W') < 0) player.direction = direction(1,0,0,0);
-    if (GetKeyState('A') < 0) player.direction = direction(0, 0, 1, 0);
-    if (GetKeyState('S') < 0) player.direction = direction(0, 1, 0, 0);
-    if (GetKeyState('D') < 0) player.direction = direction(0, 0, 0, 1);
-  /*  if (player.direction.x != 0 && player.direction.y != 0)
-    {
-        player.direction = point(player.direction.x * 0.7, player.direction.y * 0.7);
-    }*/
+    if (GetKeyState('W') < 0 && (player.direction.down != 1)) player.direction = direction(1, 0, 0, 0);
+    if (GetKeyState('A') < 0 && (player.direction.right != 1)) player.direction = direction(0, 0, 1, 0);
+    if (GetKeyState('S') < 0 && (player.direction.up != 1)) player.direction = direction(0, 1, 0, 0);
+    if (GetKeyState('D') < 0 && (player.direction.left != 1)) player.direction = direction(0, 0, 0, 1);
 
-}
+};
 
 
 RECT rect;
@@ -160,7 +180,22 @@ void update(HDC hdc) {
     Draw(hdc);
 }
 
+void gameOver(hwnd) {
+    Beep(350, 300);
+    HWND hwndButton = CreateWindowW(
+        L"BUTTON",  // Predefined class; Unicode assumed 
+        L"Restart",      // Button text 
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+        10,         // x position 
+        10,         // y position 
+        100,        // Button width
+        100,        // Button height
+        hwnd,     // Parent window
+        NULL,       // No menu.
+        (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+        NULL);
 
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -190,12 +225,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-
+    HDC hdc = GetDC(hWnd);
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_THEGAME));
 
     MSG msg;
-    SetTimer(hWnd, IDT_TIMER1, INFINITE, NULL);
+
     WinInitial();
+    update(hdc);
     
     // Main message loop:
     while (1)
@@ -213,6 +249,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             WinInitial();
             newGame = FALSE;
         };
+        update(hdc);
 
 
     }
@@ -265,6 +302,31 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
     return RegisterClassExW(&wcex);
+}
+
+void RegisterDeathScreen(void) {
+
+    HBRUSH hbrush = CreateSolidBrush(RGB(90, 90, 90));
+
+    WNDCLASSW rwc = { 0 };
+
+    rwc.lpszClassName = L"DeathScreen";
+    rwc.hbrBackground = hbrush;
+    rwc.lpfnWndProc = DeathScreenProc;
+    rwc.hCursor = LoadCursor(0, IDC_ARROW);
+    RegisterClassW(&rwc);
+}
+
+LRESULT CALLBACK DeathScreenProc(HWND hwnd, UINT msg,
+    WPARAM wParam, LPARAM lParam)
+{
+    switch (msg) {
+
+        case WM_LBUTTONUP:
+            newGame = TRUE;
+            break;
+
+    return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
 
 //
@@ -358,13 +420,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         break;
     case WM_TIMER:
-        switch (wParam)
-        {
-        case IDT_TIMER1:
-            // process the gameplay timer
-            update(hdc);
-            return 0;
-        }
+        //switch (wParam)
+        //{
+        //case IDT_TIMER1:
+        //    // process the gameplay timer
+        //    update(hdc);
+        //    return 0;
+        //}
     case WM_MOVE:
 
         /*GetWindowRect(hWnd, &rect);*/
