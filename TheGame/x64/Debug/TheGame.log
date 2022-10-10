@@ -1,5 +1,10 @@
 ﻿  TheGame.c
-C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(205,17): warning C4101: 'ps': unreferenced local variable
-C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(441,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
-C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(441,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(201,17): warning C4101: 'ps': unreferenced local variable
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(220,17): warning C4101: 'ps': unreferenced local variable
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(442,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(442,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(490,33): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(491,37): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(492,32): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\Nikolai\source\repos\TheGame\TheGame\TheGame.c(493,38): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
   TheGame.vcxproj -> C:\Users\Nikolai\source\repos\TheGame\x64\Debug\TheGame.exe

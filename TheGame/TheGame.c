@@ -19,7 +19,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define IDM_FILE_NEW 1
 #define IDM_FILE_QUIT 2
 
-#define IDT_TIMER1 1
+#define IDT_TIMER 1
 
 void CenterWindow(HWND);
 HWND hwndSta1;
@@ -82,7 +82,7 @@ int playerSpeed = 1;
 BOOL newGame = FALSE;
 HBITMAP hbtm;
 HWND hWnd;
-void gameOver(HDC);
+void gameOver();
 
 void Move(TObject* obj)
 {
@@ -128,19 +128,19 @@ void Move(TObject* obj)
     }
 }
 
-void Controls(HDC hdc)
+void Controls()
 {
     if (player.pos.y < 11 || player.pos.y > 637) {
         player.direction = direction(0, 0, 0, 0);
         Sleep(500);
-        gameOver(hdc);
+        gameOver();
         
 
     }
     if (player.pos.x < 11 || player.pos.x > 1235) {
         player.direction = direction(0, 0, 0, 0);
         Sleep(500);
-        gameOver(hdc);
+        gameOver();
         
     }
     if (GetKeyState('W') < 0 && (player.direction.down != 1)) player.direction = direction(1, 0, 0, 0);
@@ -158,8 +158,8 @@ void WinInitial()
     ObjectInit(&player, 500, 500, 20, 10);
 }
 
-void CharMove(HDC hdc) {
-    Controls(hdc);
+void CharMove() {
+    Controls();
     Move(&player); 
 
 }
@@ -167,19 +167,15 @@ void CharMove(HDC hdc) {
 void Boarders(HDC hdc);
 
 void Draw(HDC dc) {
-    HDC memDC = CreateCompatibleDC(dc);
-    HBITMAP memBM = CreateCompatibleBitmap(dc,rect.right- rect.left, rect.bottom - rect.top );
-    SelectObject(memDC, memBM);
-    SelectObject(memDC, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(memDC, RGB(255, 255, 255));
-    Rectangle(memDC, 0, 0, 1280, 720);
-    Boarders(memDC);
-    ObjectShow(player, memDC);
+   /* HDC memDC = CreateCompatibleDC(dc);
+    HBITMAP memBM = CreateCompatibleBitmap(dc,rect.right- rect.left, rect.bottom - rect.top );*/
+   /* SelectObject(memDC, memBM);*/
+    SelectObject(dc, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(dc, RGB(255, 255, 255));
+    Rectangle(dc, 0, 0, 1280, 720);
+    Boarders(dc);
+    ObjectShow(player, dc);
     
-
-    BitBlt(dc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, memDC, 0, 0, SRCCOPY);
-    DeleteDC(memDC);
-    DeleteObject(memBM);
 
 }
 
@@ -197,7 +193,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 
 void update(HDC hdc) {
-    CharMove(hdc);
+    CharMove();
     Draw(hdc);
 }
 void LoadImageBtm(HDC hdc, wchar_t path[]) {
@@ -220,11 +216,15 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
     
 }
 
-void gameOver(HDC hdc) {
+void gameOver() {
+    PAINTSTRUCT ps;
     wchar_t diescreen[] = L"..\\dieimg.bmp";
+    HDC hdc = GetDC(hWnd);
     LoadImageBtm(hdc, diescreen);
     PlaySound(L"..\\dieSound.wav", NULL, SND_FILENAME/*|SND_ASYNC*/);
     newGame = TRUE;
+    ReleaseDC(hWnd, hdc);
+    WinInitial();
     //DeleteDC(hdc);
     //HWND hwndMem = WindowFromDC(hdc);
     //
@@ -273,7 +273,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_THEGAME, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
-
+    WinInitial();
     // Perform application initialization:
  /*   if (!InitInstance (hInstance, nCmdShow))
     {
@@ -285,15 +285,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-    HDC hdc = GetDC(hWnd);
+    
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_THEGAME));
 
     MSG msg;
 
-    WinInitial();
-    //update(hdc);
-   
     
+
     // Main message loop:
     while (1)
     {
@@ -307,10 +305,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             break;
         }
         if (newGame) {
-            WinInitial();
+            //WinInitial();
+            InvalidateRect(hWnd, NULL, FALSE);
             newGame = FALSE;
         };
-        update(hdc);
+        
 
 
     }
@@ -432,10 +431,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     //wchar_t buf[10];
-    HDC hdcMem = GetDC(hWnd);
+    //HDC hdcMem = GetDC(hWnd);
     switch (message)
     {
     case WM_CREATE:
+
+        SetTimer(hWnd, IDT_TIMER, 5, NULL);
 
         RegisterHotKey(hWnd, ID_HOTKEY, MOD_CONTROL, 0x43);
         RegisterHotKey(hWnd, ID_HOTKEY2, NULL, 0x52);
@@ -480,13 +481,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         break;
     case WM_TIMER:
-        //switch (wParam)
-        //{
-        //case IDT_TIMER1:
-        //    // process the gameplay timer
-        //    update(hdc);
-        //    return 0;
-        //}
+    /*    switch (wParam)
+        {
+        case IDT_TIMER:*/
+            // process the gameplay timer
+    { 
+    RECT playerRect;
+    playerRect.left = player.pos.x;
+    playerRect.right = player.pos.x + player.size.x;
+    playerRect.top = player.pos.y ;
+    playerRect.bottom = player.pos.y + player.size.y;
+    RECT* PplayerRect = &playerRect;
+    InvalidateRect(hWnd, PplayerRect, FALSE);
+    }
+            break;
+        
     case WM_MOVE:
 
         /*GetWindowRect(hWnd, &rect);*/
@@ -515,7 +524,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         if ((wParam) == ID_HOTKEY2) {
 
-            gameOver(hdcMem);
+            gameOver();
+            
             break;
 
         }
@@ -526,6 +536,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
+            update(hdc);
             
             //HPEN hPen = CreatePen(PS_SOLID, 4, RGB(255, 128, 0));
             // TODO: Add any drawing code that uses hdc here...
@@ -536,7 +547,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
     default:
-        DeleteDC(hdcMem);
+        
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
