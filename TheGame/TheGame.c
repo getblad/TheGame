@@ -3,11 +3,13 @@
 #pragma comment(linker, "\"/manifestdependency:type='Win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#pragma comment (lib, "winmm.lib")
 
 #include "framework.h"
 #include "TheGame.h"
 #include <windows.h>
 #include  "strsafe.h"
+#include <mmsystem.h>
 
 
 #define MAX_LOADSTRING 100
@@ -15,8 +17,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define ID_HOTKEY2 2
 
 #define IDM_FILE_NEW 1
-#define IDM_FILE_OPEN 2
-#define IDM_FILE_QUIT 3
+#define IDM_FILE_QUIT 2
 
 #define IDT_TIMER1 1
 
@@ -133,7 +134,7 @@ void Controls(HDC hdc)
         player.direction = direction(0, 0, 0, 0);
         Sleep(500);
         gameOver(hdc);
-       
+        
 
     }
     if (player.pos.x < 11 || player.pos.x > 1235) {
@@ -220,23 +221,39 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
 }
 
 void gameOver(HDC hdc) {
-    wchar_t diescreen[] = L"C:\\Users\\Nikolai\\source\\repos\\TheGame\\dieimg.bmp";
+    wchar_t diescreen[] = L"..\\dieimg.bmp";
     LoadImageBtm(hdc, diescreen);
-    Beep(1000, 3000);    
+    PlaySound(L"..\\dieSound.wav", NULL, SND_FILENAME/*|SND_ASYNC*/);
     newGame = TRUE;
-    
-    //HWND hwndButton = CreateWindowW(
+    //DeleteDC(hdc);
+    //HWND hwndMem = WindowFromDC(hdc);
+    //
+    //CreateWindow(
     //    L"BUTTON",  // Predefined class; Unicode assumed 
     //    L"Restart",      // Button text 
     //    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
-    //    10,         // x position 
-    //    10,         // y position 
+    //    700,         // x position 
+    //    500,         // y position 
     //    100,        // Button width
     //    100,        // Button height
-    //    hwnd,     // Parent window
-    //    NULL,       // No menu.
-    //    (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+    //    hwndMem,     // Parent window
+    //    IDM_FILE_NEW,       // No menu.
+    //    (HINSTANCE)GetWindowLongPtr(hwndMem, GWLP_HINSTANCE),
     //    NULL);
+
+    //CreateWindow(
+    //    L"BUTTON",  // Predefined class; Unicode assumed 
+    //    L"Quite",      // Button text 
+    //    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+    //    1000,         // x position 
+    //    500,         // y position 
+    //    100,        // Button width
+    //    100,        // Button height
+    //    hwndMem,     // Parent window
+    //    IDM_FILE_QUIT,       // No menu.
+    //    (HINSTANCE)GetWindowLongPtr(hwndMem, GWLP_HINSTANCE),
+    //    NULL);
+    
 
 }
 
@@ -499,8 +516,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if ((wParam) == ID_HOTKEY2) {
 
             gameOver(hdcMem);
-            Sleep(3000);
-            newGame = TRUE;
             break;
 
         }
@@ -512,7 +527,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             
-            HPEN hPen = CreatePen(PS_SOLID, 4, RGB(255, 128, 0));
+            //HPEN hPen = CreatePen(PS_SOLID, 4, RGB(255, 128, 0));
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }
