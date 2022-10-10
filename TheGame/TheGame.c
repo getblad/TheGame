@@ -11,6 +11,10 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include  "strsafe.h"
 #include <mmsystem.h>
 
+#include <time.h>
+#include <stdlib.h>
+#include <math.h>
+
 
 #define MAX_LOADSTRING 100
 #define ID_HOTKEY 1
@@ -28,6 +32,8 @@ void CreateLabels(HWND);
 void AddMenus(HWND);
 HWND hWnd;
 //HDC hdc;
+int length = 3;
+
 
 typedef struct SPoint {
     float x, y;
@@ -67,28 +73,45 @@ void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height)
     obj->direction = direction(0,0,0,1);
 }
 
-void ObjectShow(TObject obj, HDC dc)
+void ObjectShow(TObject head, TObject obj[], HDC dc)
 {
     SelectObject(dc, GetStockObject(DC_PEN));
     SetDCPenColor(dc, RGB(0, 0, 0));
     SelectObject(dc, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(dc, obj.brush);
-    Rectangle(dc, (int)(obj.pos.x), (int)(obj.pos.y), 
-        (int)(obj.pos.x + obj.size.x), (int)(obj.pos.y + obj.size.y));
+    SetDCBrushColor(dc, obj->brush);
+    Ellipse(dc, (int)(head.pos.x), (int)(head.pos.y),
+        (int)(head.pos.x + head.size.x), (int)(head.pos.y + head.size.y));
+    for (int i = 0; i <= length; i++) {
+        Ellipse(dc, (int)(obj[i].pos.x), (int)(obj[i].pos.y),
+            (int)(obj[i].pos.x + obj[i].size.x), (int)(obj[i].pos.y + obj[i].size.y));
+
+    }
 }
 
 TObject player;
-int playerSpeed = 1;
+int playerSpeed = 10;
 BOOL newGame = FALSE;
 HBITMAP hbtm;
 HWND hWnd;
 void gameOver(HDC);
+TObject snakeBody[10];
 
-void Move(TObject* obj)
+void Move(TObject* head, TObject body[])
 {
-    if (obj -> direction.up)
+    TPoint tempy = point(head->pos.x, head->pos.y);
+    
+    if (head -> direction.up)
     {
-        obj->pos.y -= playerSpeed;
+       
+       
+
+        for (int i = 0; i <= length; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.y -= playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x > player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -96,9 +119,17 @@ void Move(TObject* obj)
             player.size.x = player.size.x - player.size.y;
         }
     }
-    if (obj->direction.down)
+    if (head->direction.down)
     {
-        obj->pos.y += playerSpeed;
+      
+        
+        for (int i = 0; i <= length; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.y += playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x > player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -106,9 +137,17 @@ void Move(TObject* obj)
             player.size.x = player.size.x - player.size.y;
         };
     }
-    if (obj->direction.left)
+    if (head->direction.left)
     {
-        obj->pos.x -= playerSpeed;
+       
+       
+        for (int i = 0; i <= length-1; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.x -= playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x < player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -116,9 +155,16 @@ void Move(TObject* obj)
             player.size.x = player.size.x - player.size.y;
         }
     }
-    if (obj->direction.right)
+    if (head->direction.right)
     {
-        obj->pos.x += playerSpeed;
+       
+        for (int i = 0; i <= length-1; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.x += playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x < player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -155,12 +201,16 @@ RECT rect;
 
 void WinInitial()
 {
-    ObjectInit(&player, 500, 500, 20, 10);
+    ObjectInit(&player, 500, 500, 10, 10);
+    for (int i = length; i >= 0; i--) {
+        ObjectInit(&snakeBody[length - i], 500 - i * 10 - 10, 500, 10, 10);
+
+    }
 }
 
-void CharMove(HDC hdc) {
+void CharMove(hdc) {
     Controls(hdc);
-    Move(&player); 
+    Move(&player, snakeBody);
 
 }
 
@@ -174,7 +224,8 @@ void Draw(HDC dc) {
     SetDCBrushColor(memDC, RGB(255, 255, 255));
     Rectangle(memDC, 0, 0, 1280, 720);
     Boarders(memDC);
-    ObjectShow(player, memDC);
+    ObjectShow(player, snakeBody, memDC);
+    Sleep(50);
     
 
     BitBlt(dc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, memDC, 0, 0, SRCCOPY);
@@ -211,11 +262,11 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
         IMAGE_BITMAP, 1280, 720, LR_LOADFROMFILE);
    
     hdcMem = CreateCompatibleDC(hdc);
-    oldBitmap = SelectObject(hdcMem, hbtm);
+    SelectObject(hdcMem, hbtm);
     GetObject(hbtm, sizeof(bitmap), &bitmap);
     BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight,
         hdcMem, 0, 0, SRCCOPY);
-    SelectObject(hdcMem, oldBitmap);
+    //SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
     
 }
@@ -279,6 +330,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }*/
+    srand(time(NULL));
     hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
        20, 10, 1280, 720, NULL, NULL, hInstance, NULL);
 
@@ -515,7 +567,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         if ((wParam) == ID_HOTKEY2) {
 
-            gameOver(hdcMem);
+            /*gameOver(hdcMem);*/
+            newGame = TRUE;
             break;
 
         }
