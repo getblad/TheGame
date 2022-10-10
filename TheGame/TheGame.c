@@ -28,6 +28,11 @@ void CreateLabels(HWND);
 void AddMenus(HWND);
 HWND hWnd;
 //HDC hdc;
+typedef struct SObject TObject;
+
+
+int length = 3;
+
 
 typedef struct SPoint {
     float x, y;
@@ -36,6 +41,8 @@ typedef struct SPoint {
 typedef struct SDirection {
     BOOL up, down, left, right;
 } TDirection;
+
+
 
 TPoint point(float x, float y) {
     TPoint pt;
@@ -60,6 +67,8 @@ typedef struct SObject {
     TDirection direction;
 } TObject;
 
+TObject snakeBody[10];
+
 void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height) {
     obj -> pos = point(xPos, yPos);
     obj->size = point(width, height);
@@ -67,28 +76,44 @@ void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height)
     obj->direction = direction(0,0,0,1);
 }
 
-void ObjectShow(TObject obj, HDC dc)
+void ObjectShow(TObject head,TObject obj[], HDC dc)
 {
     SelectObject(dc, GetStockObject(DC_PEN));
     SetDCPenColor(dc, RGB(0, 0, 0));
     SelectObject(dc, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(dc, obj.brush);
-    Rectangle(dc, (int)(obj.pos.x), (int)(obj.pos.y), 
-        (int)(obj.pos.x + obj.size.x), (int)(obj.pos.y + obj.size.y));
+    SetDCBrushColor(dc, obj->brush);
+    Ellipse(dc, (int)(head.pos.x), (int)(head.pos.y),
+        (int)(head.pos.x + head.size.x), (int)(head.pos.y + head.size.y));
+    for (int i = 0; i <= length; i++) {
+    Ellipse(dc, (int)(obj[i].pos.x), (int)(obj[i].pos.y),
+        (int)(obj[i].pos.x + obj[i].size.x), (int)(obj[i].pos.y + obj[i].size.y));
+
+    }
 }
 
 TObject player;
-int playerSpeed = 1;
+int playerSpeed = 10;
 BOOL newGame = FALSE;
 HBITMAP hbtm;
 HWND hWnd;
 void gameOver();
 
-void Move(TObject* obj)
+void Move(TObject* head, TObject body[])
 {
-    if (obj -> direction.up)
+    TPoint tempy = point(head->pos.x, head->pos.y);
+    
+    if (head -> direction.up)
     {
-        obj->pos.y -= playerSpeed;
+       
+       
+
+        for (int i = 0; i <= length; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.y -= playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x > player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -96,9 +121,17 @@ void Move(TObject* obj)
             player.size.x = player.size.x - player.size.y;
         }
     }
-    if (obj->direction.down)
+    if (head->direction.down)
     {
-        obj->pos.y += playerSpeed;
+      
+        
+        for (int i = 0; i <= length; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.y += playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x > player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -106,9 +139,17 @@ void Move(TObject* obj)
             player.size.x = player.size.x - player.size.y;
         };
     }
-    if (obj->direction.left)
+    if (head->direction.left)
     {
-        obj->pos.x -= playerSpeed;
+       
+       
+        for (int i = 0; i <= length-1; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.x -= playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x < player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -116,9 +157,16 @@ void Move(TObject* obj)
             player.size.x = player.size.x - player.size.y;
         }
     }
-    if (obj->direction.right)
+    if (head->direction.right)
     {
-        obj->pos.x += playerSpeed;
+       
+        for (int i = 0; i <= length-1; i++) {
+            body[i].pos.x = body[i + 1].pos.x;
+            body[i].pos.y = body[i + 1].pos.y;
+        }
+        head->pos.x += playerSpeed;
+        body[length].pos.x = tempy.x;
+        body[length].pos.y = tempy.y;
         if (player.size.x < player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -155,12 +203,16 @@ RECT rect;
 
 void WinInitial()
 {
-    ObjectInit(&player, 500, 500, 20, 10);
+    ObjectInit(&player, 500, 500, 10,10 );
+    for (int i = length; i >= 0; i--) {
+        ObjectInit(&snakeBody[length - i], 500 - i * 20 - 20, 500, 10, 10);
+
+    }
 }
 
 void CharMove() {
     Controls();
-    Move(&player); 
+    Move(&player, snakeBody); 
 
 }
 
@@ -174,7 +226,10 @@ void Draw(HDC dc) {
     SetDCBrushColor(dc, RGB(255, 255, 255));
     Rectangle(dc, 0, 0, 1280, 720);
     Boarders(dc);
-    ObjectShow(player, dc);
+    ObjectShow(player, snakeBody, dc);
+    Sleep(100);
+    
+
     
 
 }
@@ -436,7 +491,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
 
-        SetTimer(hWnd, IDT_TIMER, 5, NULL);
+        SetTimer(hWnd, IDT_TIMER, 10, NULL);
 
         RegisterHotKey(hWnd, ID_HOTKEY, MOD_CONTROL, 0x43);
         RegisterHotKey(hWnd, ID_HOTKEY2, NULL, 0x52);
@@ -492,7 +547,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     playerRect.top = player.pos.y ;
     playerRect.bottom = player.pos.y + player.size.y;
     RECT* PplayerRect = &playerRect;
-    InvalidateRect(hWnd, PplayerRect, FALSE);
+    InvalidateRect(hWnd, NULL, FALSE);
     }
             break;
         
