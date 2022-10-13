@@ -19,6 +19,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define MAX_LOADSTRING 100
 #define ID_HOTKEY 1
 #define ID_HOTKEY2 2
+#define ID_HOTKEY_CONTINUE 3
 
 #define IDM_FILE_NEW 1
 #define IDM_FILE_QUIT 2
@@ -31,6 +32,7 @@ HWND hwndSta2;
 void CreateLabels(HWND);
 void AddMenus(HWND);
 HWND hWnd;
+HDC hdc;
 //HDC hdc;
 int length = 3;
 
@@ -248,8 +250,12 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 
 void update(HDC hdc) {
+    
     CharMove(hdc);
-    Draw(hdc);
+    if (!newGame) {
+        Draw(hdc);
+    }
+
 }
 void LoadImageBtm(HDC hdc, wchar_t path[]) {
 
@@ -272,10 +278,14 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
 }
 
 void gameOver(HDC hdc) {
+    
     wchar_t diescreen[] = L"..\\dieimg.bmp";
     LoadImageBtm(hdc, diescreen);
-    PlaySound(L"..\\dieSound.wav", NULL, SND_FILENAME/*|SND_ASYNC*/);
+    WinInitial();
+    PlaySound(L"..\\dieSound.wav", NULL, SND_FILENAME|SND_ASYNC);
     newGame = TRUE;
+    SetTimer(hWnd, IDT_TIMER1, 3000, NULL);
+    
     //DeleteDC(hdc);
     //HWND hwndMem = WindowFromDC(hdc);
     //
@@ -337,7 +347,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-    HDC hdc = GetDC(hWnd);
+    hdc = GetDC(hWnd);
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_THEGAME));
 
     MSG msg;
@@ -358,13 +368,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (msg.message == WM_QUIT) {
             break;
         }
-        if (newGame) {
-            WinInitial();
-            newGame = FALSE;
-        };
-        update(hdc);
-
-
+        if (!newGame) {
+            //WinInitial();
+            
+            update(hdc);
+        }
+       
     }
 
     return (int) msg.wParam;
@@ -484,7 +493,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     //wchar_t buf[10];
-    HDC hdcMem = GetDC(hWnd);
+    
     switch (message)
     {
     case WM_CREATE:
@@ -507,6 +516,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SendMessage(hWnd, WM_CLOSE, 0, 0);
             }
         }
+        if (wParam == VK_RETURN) {
+
+            newGame = FALSE;
+        }
+        break;
         break;
     case WM_COMMAND:
 
@@ -532,13 +546,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         break;
     case WM_TIMER:
-        //switch (wParam)
-        //{
-        //case IDT_TIMER1:
-        //    // process the gameplay timer
-        //    update(hdc);
-        //    return 0;
-        //}
+        switch (wParam)
+        {
+        case IDT_TIMER1:
+            // process the gameplay timer
+        {
+
+        LoadImageBtm(hdc, L"..\\dieimg2.bmp");
+        KillTimer(hWnd, IDT_TIMER1);
+        
+        return 0;
+        }
+        }
     case WM_MOVE:
 
         /*GetWindowRect(hWnd, &rect);*/
@@ -568,7 +587,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if ((wParam) == ID_HOTKEY2) {
 
             /*gameOver(hdcMem);*/
-            newGame = TRUE;
+            //newGame = TRUE;
+            WinInitial();
             break;
 
         }
@@ -587,9 +607,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
+        SendMessage(hWnd, WM_CLOSE, 0, 0);
         break;
     default:
-        DeleteDC(hdcMem);
+       
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
