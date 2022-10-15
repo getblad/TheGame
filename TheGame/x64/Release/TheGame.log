@@ -1,0 +1,19 @@
+﻿  TheGame.c
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(210,37): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(210,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(222,58): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(232,17): warning C4047: 'function': 'HDC' differs in levels of indirection from 'int'
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(232,14): warning C4024: 'Controls': different types for formal and actual parameter 1
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(271,26): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(271,66): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(296,13): warning C4101: 'oldBitmap': unreferenced local variable
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(293,17): warning C4101: 'ps': unreferenced local variable
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(362,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(378,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(534,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(534,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 20 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  TheGame.vcxproj -> C:\Users\Admin\masa-introduction\The Game\TheGame\x64\Release\TheGame.exe

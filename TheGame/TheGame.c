@@ -25,7 +25,13 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #define IDM_FILE_QUIT 2
 
 #define IDT_TIMER1 1
+#define IDT_BASE_TIMER 2
 
+
+
+wchar_t numbers[10][9] = { L"..\\0.bmp", L"..\\1.bmp" ,L"..\\2.bmp" , L"..\\3.bmp", L"..\\4.bmp",
+L"..\\5.bmp",L"..\\6.bmp", L"..\\7.bmp", L"..\\8.bmp", L"..\\9.bmp" };
+  
 void CenterWindow(HWND);
 HWND hwndSta1;
 HWND hwndSta2;
@@ -33,7 +39,9 @@ void CreateLabels(HWND);
 void AddMenus(HWND);
 HWND hWnd;
 HDC hdc;
-//HDC hdc;
+HBITMAP scoreNum;
+BOOL enterFlag = FALSE;
+
 int length = 3;
 
 
@@ -66,7 +74,7 @@ typedef struct SObject {
     TPoint size;
     COLORREF brush;
     TDirection direction;
-} TObject;
+} TObject, *PObject;
 
 void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height) {
     obj -> pos = point(xPos, yPos);
@@ -75,7 +83,7 @@ void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height)
     obj->direction = direction(0,0,0,1);
 }
 
-void ObjectShow(TObject head, TObject obj[], HDC dc)
+void ObjectShow(TObject head, PObject obj, TObject apple, HDC dc)
 {
     SelectObject(dc, GetStockObject(DC_PEN));
     SetDCPenColor(dc, RGB(0, 0, 0));
@@ -88,17 +96,23 @@ void ObjectShow(TObject head, TObject obj[], HDC dc)
             (int)(obj[i].pos.x + obj[i].size.x), (int)(obj[i].pos.y + obj[i].size.y));
 
     }
+    SetDCBrushColor(dc, apple.brush);
+    Ellipse(dc, (int)(apple.pos.x), (int)(apple.pos.y),
+        (int)(apple.pos.x + apple.size.x), (int)(apple.pos.y + apple.size.y));
 }
 
 TObject player;
-int playerSpeed = 10;
+void score(HDC);
+int playerSpeed = 15;
 BOOL newGame = FALSE;
 HBITMAP hbtm;
 HWND hWnd;
 void gameOver(HDC);
-TObject snakeBody[10];
+PObject snakeBody = NULL;
+int result = 0;
+TObject apple;
 
-void Move(TObject* head, TObject body[])
+void Move(PObject head, PObject body)
 {
     TPoint tempy = point(head->pos.x, head->pos.y);
     
@@ -106,14 +120,14 @@ void Move(TObject* head, TObject body[])
     {
        
        
-
-        for (int i = 0; i <= length; i++) {
+         
+        for (int i = 0; i < length-1; i++) {
             body[i].pos.x = body[i + 1].pos.x;
             body[i].pos.y = body[i + 1].pos.y;
         }
         head->pos.y -= playerSpeed;
-        body[length].pos.x = tempy.x;
-        body[length].pos.y = tempy.y;
+        body[length-1].pos.x = tempy.x;
+        body[length-1].pos.y = tempy.y;
         if (player.size.x > player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -125,13 +139,13 @@ void Move(TObject* head, TObject body[])
     {
       
         
-        for (int i = 0; i <= length; i++) {
+        for (int i = 0; i < length - 1; i++) {
             body[i].pos.x = body[i + 1].pos.x;
             body[i].pos.y = body[i + 1].pos.y;
         }
         head->pos.y += playerSpeed;
-        body[length].pos.x = tempy.x;
-        body[length].pos.y = tempy.y;
+        body[length-1].pos.x = tempy.x;
+        body[length-1].pos.y = tempy.y;
         if (player.size.x > player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -143,13 +157,13 @@ void Move(TObject* head, TObject body[])
     {
        
        
-        for (int i = 0; i <= length-1; i++) {
+        for (int i = 0; i < length - 1; i++) {
             body[i].pos.x = body[i + 1].pos.x;
             body[i].pos.y = body[i + 1].pos.y;
         }
         head->pos.x -= playerSpeed;
-        body[length].pos.x = tempy.x;
-        body[length].pos.y = tempy.y;
+        body[length-1].pos.x = tempy.x;
+        body[length-1].pos.y = tempy.y;
         if (player.size.x < player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -160,13 +174,13 @@ void Move(TObject* head, TObject body[])
     if (head->direction.right)
     {
        
-        for (int i = 0; i <= length-1; i++) {
+        for (int i = 0; i < length - 1; i++) {
             body[i].pos.x = body[i + 1].pos.x;
             body[i].pos.y = body[i + 1].pos.y;
         }
         head->pos.x += playerSpeed;
-        body[length].pos.x = tempy.x;
-        body[length].pos.y = tempy.y;
+        body[length-1].pos.x = tempy.x;
+        body[length-1].pos.y = tempy.y;
         if (player.size.x < player.size.y)
         {
             player.size.x = player.size.x + player.size.y;
@@ -178,14 +192,14 @@ void Move(TObject* head, TObject body[])
 
 void Controls(HDC hdc)
 {
-    if (player.pos.y < 11 || player.pos.y > 637) {
+    if (player.pos.y < 9 || player.pos.y > 639) {
         player.direction = direction(0, 0, 0, 0);
         Sleep(500);
         gameOver(hdc);
         
 
     }
-    if (player.pos.x < 11 || player.pos.x > 1235) {
+    if (player.pos.x < 9 || player.pos.x > 1237) {
         player.direction = direction(0, 0, 0, 0);
         Sleep(500);
         gameOver(hdc);
@@ -198,16 +212,28 @@ void Controls(HDC hdc)
 
 };
 
-
 RECT rect;
+void setApple() {
+    apple.pos = point(rand() % 1230 + 16, rand() % 632 + 16);
+    apple.size = point(12, 12);
+    apple.brush = RGB(rand() % 256, rand() % 256, rand() % 256);
+    apple.direction = direction(0, 0, 0, 0);
+}
+
+
 
 void WinInitial()
 {
-    ObjectInit(&player, 500, 500, 10, 10);
+    ObjectInit(&player, 500, 500, 15, 15);
     for (int i = length; i >= 0; i--) {
-        ObjectInit(&snakeBody[length - i], 500 - i * 10 - 10, 500, 10, 10);
+        ObjectInit(&snakeBody[length-i-1], 500 - i * 15 + 15, 500, 15, 15);
+        
 
     }
+
+    length = 3;
+    result = 0;
+    setApple();
 }
 
 void CharMove(hdc) {
@@ -218,6 +244,21 @@ void CharMove(hdc) {
 
 void Boarders(HDC hdc);
 
+PObject CreateObject()
+{
+    length++;
+    PObject temp = realloc(snakeBody, sizeof(*snakeBody) * length);
+    if (temp == NULL) {       
+        free(snakeBody);
+        exit(EXIT_FAILURE);
+    }
+    else {
+        snakeBody = temp;
+    }
+    return snakeBody + length - 1;
+}
+
+
 void Draw(HDC dc) {
     HDC memDC = CreateCompatibleDC(dc);
     HBITMAP memBM = CreateCompatibleBitmap(dc,rect.right- rect.left, rect.bottom - rect.top );
@@ -226,9 +267,8 @@ void Draw(HDC dc) {
     SetDCBrushColor(memDC, RGB(255, 255, 255));
     Rectangle(memDC, 0, 0, 1280, 720);
     Boarders(memDC);
-    ObjectShow(player, snakeBody, memDC);
-    Sleep(50);
-    
+    ObjectShow(player, snakeBody, apple, memDC);
+    score(memDC);
 
     BitBlt(dc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, memDC, 0, 0, SRCCOPY);
     DeleteDC(memDC);
@@ -249,9 +289,23 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 
 
+void eatingApple()
+{
+    if (abs(player.pos.x - apple.pos.x) < 12 && abs(player.pos.y - apple.pos.y) < 12)
+    {
+        setApple();
+        result++;
+        length++;
+        //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
+        ObjectInit(&snakeBody[length-1], snakeBody[length - 2].pos.x, snakeBody[length - 2].pos.y, 15, 15);
+   }
+}
+
 void update(HDC hdc) {
     
+    
     CharMove(hdc);
+    eatingApple();
     if (!newGame) {
         Draw(hdc);
     }
@@ -277,13 +331,31 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
     
 }
 
+void score(HDC hdc) {
+    HDC hdcMem;
+    BITMAP bitmap;
+
+    scoreNum = LoadImageW(NULL, numbers[result], IMAGE_BITMAP, 50, 75, LR_LOADFROMFILE);
+    hdcMem = CreateCompatibleDC(hdc);
+    SelectObject(hdcMem, scoreNum);
+    GetObject(scoreNum, sizeof(bitmap), &bitmap);
+    BitBlt(hdc, 1200, 30, bitmap.bmWidth, bitmap.bmHeight,
+        hdcMem, 0, 0, SRCCOPY);
+    DeleteDC(hdcMem);
+   
+}
+
+
 void gameOver(HDC hdc) {
     
     wchar_t diescreen[] = L"..\\dieimg.bmp";
     LoadImageBtm(hdc, diescreen);
+    //snakeBody = calloc(length, sizeof(*snakeBody));
     WinInitial();
     PlaySound(L"..\\dieSound.wav", NULL, SND_FILENAME|SND_ASYNC);
     newGame = TRUE;
+    
+    //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
     SetTimer(hWnd, IDT_TIMER1, 3000, NULL);
     
     //DeleteDC(hdc);
@@ -326,6 +398,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
+    srand(time(NULL));
     MessageBoxW(NULL, L"TheBestGameEVER!!", L"First", MB_OK);
 
     // TODO: Place code here.
@@ -340,10 +413,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }*/
+    snakeBody = malloc( sizeof(*snakeBody) * length);
     srand(time(NULL));
+    
+    
     hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
-       20, 10, 1280, 720, NULL, NULL, hInstance, NULL);
-
+       0, 0, 1290, 755, NULL, NULL, hInstance, NULL);
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
@@ -368,11 +443,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (msg.message == WM_QUIT) {
             break;
         }
-        if (!newGame) {
-            //WinInitial();
-            
-            update(hdc);
-        }
+      
        
     }
 
@@ -503,6 +574,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //CreateLabels(hWnd);
         GetWindowRect(hWnd, &rect);
         AddMenus(hWnd);
+        SetTimer(hWnd, IDT_BASE_TIMER, 150, NULL);
         break;
     case WM_KEYDOWN:
 
@@ -516,9 +588,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SendMessage(hWnd, WM_CLOSE, 0, 0);
             }
         }
-        if (wParam == VK_RETURN) {
+        if (wParam == VK_RETURN && enterFlag == TRUE) {
 
             newGame = FALSE;
+            enterFlag = FALSE;
         }
         break;
         break;
@@ -554,9 +627,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         LoadImageBtm(hdc, L"..\\dieimg2.bmp");
         KillTimer(hWnd, IDT_TIMER1);
+        enterFlag = TRUE;
         
         return 0;
         }
+        case IDT_BASE_TIMER:
+            if (!newGame) {
+                update(hdc);
+            }
+                
         }
     case WM_MOVE:
 
@@ -588,6 +667,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             /*gameOver(hdcMem);*/
             //newGame = TRUE;
+            //free(snakeBody);
+            length = 3;
             WinInitial();
             break;
 
