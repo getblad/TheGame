@@ -1,15 +1,15 @@
 ﻿  TheGame.c
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(217,37): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(217,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(229,57): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(240,17): warning C4047: 'function': 'HDC' differs in levels of indirection from 'int'
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(240,14): warning C4024: 'Controls': different types for formal and actual parameter 1
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(294,26): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(294,66): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(319,13): warning C4101: 'oldBitmap': unreferenced local variable
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(316,17): warning C4101: 'ps': unreferenced local variable
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(401,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(417,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(573,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(573,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(117,25): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(118,24): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(227,37): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(227,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(239,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(250,17): warning C4047: 'function': 'HDC' differs in levels of indirection from 'int'
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(250,14): warning C4024: 'Controls': different types for formal and actual parameter 1
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(339,13): warning C4101: 'oldBitmap': unreferenced local variable
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(336,17): warning C4101: 'ps': unreferenced local variable
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(435,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(451,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(607,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(607,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
   TheGame.vcxproj -> C:\Users\Admin\masa-introduction\The Game\TheGame\x64\Debug\TheGame.exe

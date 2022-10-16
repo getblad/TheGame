@@ -26,6 +26,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #define IDT_TIMER1 1
 #define IDT_BASE_TIMER 2
+#define IDT_TIMER2 3
 
 
 
@@ -101,6 +102,7 @@ void ObjectShow(TObject head, PObject obj, TObject apple, HDC dc)
         (int)(apple.pos.x + apple.size.x), (int)(apple.pos.y + apple.size.y));
 }
 
+void  winGame(HDC);
 TObject player;
 void score(HDC);
 int playerSpeed = 15;
@@ -111,6 +113,14 @@ void gameOver(HDC);
 PObject snakeBody = NULL;
 int result = 0;
 TObject apple;
+BOOL collision(TObject obj1, TObject obj2) {
+    if (abs(obj1.pos.x  - obj2.pos.x) < ((obj1.size.x + obj2.size.x)/2) &&
+        abs(obj1.pos.y - obj2.pos.y) < ((obj1.size.y + obj2.size.y) / 2))
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
 
 void Move(PObject head, PObject body)
 {
@@ -226,7 +236,7 @@ void WinInitial()
 {
     ObjectInit(&player, 500, 500, 15, 15);
     for (int i = length; i >= 0; i--) {
-        ObjectInit(&snakeBody[length-i-1], 500 - i * 15 + 15, 500, 15, 15);
+        ObjectInit(&snakeBody[length-i-1], 500 - i * 15-15  , 500, 15, 15);
         
 
     }
@@ -291,7 +301,7 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 void eatingApple()
 {
-    if (abs(player.pos.x - apple.pos.x) < 12 && abs(player.pos.y - apple.pos.y) < 12)
+    if (collision(player, apple))
     {
         setApple();
         result++;
@@ -303,10 +313,20 @@ void eatingApple()
 
 void update(HDC hdc) {
     
-    
+    if (result == 7)
+    {
+        winGame(hdc);
+    }
     CharMove(hdc);
-    eatingApple();
+    for (int i = 0; i < length; i++) {
+        if (collision(player, snakeBody[i]))
+        {
+            gameOver(hdc);
+        }
+    }
+    
     if (!newGame) {
+        eatingApple();
         Draw(hdc);
     }
 
@@ -328,6 +348,7 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
         hdcMem, 0, 0, SRCCOPY);
     //SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
+    DeleteObject(hbtm);
     
 }
 
@@ -342,9 +363,22 @@ void score(HDC hdc) {
     BitBlt(hdc, 1200, 30, bitmap.bmWidth, bitmap.bmHeight,
         hdcMem, 0, 0, SRCCOPY);
     DeleteDC(hdcMem);
+    DeleteObject(scoreNum);
    
 }
 
+void winGame(HDC hdc) {
+
+    wchar_t winscreen[] = L"..\\win.bmp";
+    LoadImageBtm(hdc, winscreen);
+    //snakeBody = calloc(length, sizeof(*snakeBody));
+    WinInitial();
+    PlaySound(L"..\\champions.wav", NULL, SND_FILENAME | SND_ASYNC);
+    newGame = TRUE;
+
+    //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
+    SetTimer(hWnd, IDT_TIMER2, 3000, NULL);
+}
 
 void gameOver(HDC hdc) {
     
@@ -413,7 +447,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }*/
-    snakeBody = malloc( sizeof(*snakeBody) * length);
+    snakeBody = malloc( sizeof(*snakeBody) * 10);
     srand(time(NULL));
     
     
@@ -592,6 +626,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             newGame = FALSE;
             enterFlag = FALSE;
+            PlaySound(0, 0, 0);
         }
         break;
         break;
@@ -630,6 +665,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         enterFlag = TRUE;
         
         return 0;
+        }
+
+        case IDT_TIMER2:
+            // process the gameplay timer
+        {
+
+            
+            KillTimer(hWnd, IDT_TIMER1);
+            enterFlag = TRUE;
+
+            return 0;
         }
         case IDT_BASE_TIMER:
             if (!newGame) {
