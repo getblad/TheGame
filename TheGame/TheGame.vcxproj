@@ -140,6 +140,10 @@
     <ResourceCompile Include="TheGame.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\icon.ico" />
+    <Image Include="icon.ico" />
+    <Image Include="icon1.ico" />
+    <Image Include="icon2.ico" />
     <Image Include="small.ico" />
     <Image Include="TheGame.ico" />
   </ItemGroup>

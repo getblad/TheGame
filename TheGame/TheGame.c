@@ -44,7 +44,7 @@ HBITMAP scoreNum;
 BOOL enterFlag = FALSE;
 
 int length = 3;
-
+int timer = 180;
 
 typedef struct SPoint {
     float x, y;
@@ -92,7 +92,7 @@ void ObjectShow(TObject head, PObject obj, TObject apple, HDC dc)
     SetDCBrushColor(dc, obj->brush);
     Ellipse(dc, (int)(head.pos.x), (int)(head.pos.y),
         (int)(head.pos.x + head.size.x), (int)(head.pos.y + head.size.y));
-    for (int i = 0; i <= length; i++) {
+    for (int i = 0; i < length; i++) {
         Ellipse(dc, (int)(obj[i].pos.x), (int)(obj[i].pos.y),
             (int)(obj[i].pos.x + obj[i].size.x), (int)(obj[i].pos.y + obj[i].size.y));
 
@@ -102,6 +102,8 @@ void ObjectShow(TObject head, PObject obj, TObject apple, HDC dc)
         (int)(apple.pos.x + apple.size.x), (int)(apple.pos.y + apple.size.y));
 }
 
+TPoint cursor;
+LPPOINT cursorPoint;
 void  winGame(HDC);
 TObject player;
 void score(HDC);
@@ -113,9 +115,12 @@ void gameOver(HDC);
 PObject snakeBody = NULL;
 int result = 0;
 TObject apple;
+int ticks = 0;
+void Boarders(HDC hdc);
+
 BOOL collision(TObject obj1, TObject obj2) {
-    if (abs(obj1.pos.x  - obj2.pos.x) < ((obj1.size.x + obj2.size.x)/2) &&
-        abs(obj1.pos.y - obj2.pos.y) < ((obj1.size.y + obj2.size.y) / 2))
+    if (abs(obj1.pos.x  - obj2.pos.x) < ((obj1.size.x + obj2.size.x)/2 - 5) &&
+        abs(obj1.pos.y - obj2.pos.y) < ((obj1.size.y + obj2.size.y) / 2 - 5))
     {
         return TRUE;
     }
@@ -215,10 +220,26 @@ void Controls(HDC hdc)
         gameOver(hdc);
         
     }
-    if (GetKeyState('W') < 0 && (player.direction.down != 1)) player.direction = direction(1, 0, 0, 0);
-    if (GetKeyState('A') < 0 && (player.direction.right != 1)) player.direction = direction(0, 0, 1, 0);
-    if (GetKeyState('S') < 0 && (player.direction.up != 1)) player.direction = direction(0, 1, 0, 0);
-    if (GetKeyState('D') < 0 && (player.direction.left != 1)) player.direction = direction(0, 0, 0, 1);
+    if (GetAsyncKeyState('W') < 0 && !player.direction.down && !player.direction.up)
+    {
+        player.direction = direction(1, 0, 0, 0);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    };
+    if (GetAsyncKeyState('A') < 0 && !player.direction.left && !player.direction.right)
+    {
+        player.direction = direction(0, 0, 1, 0);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
+    if (GetAsyncKeyState('S') < 0 && !player.direction.down && !player.direction.up)
+    {
+        player.direction = direction(0, 1, 0, 0);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
+    if (GetAsyncKeyState('D') < 0 && !player.direction.left && !player.direction.right)
+    {
+        player.direction = direction(0, 0, 0, 1);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
 
 };
 
@@ -234,17 +255,25 @@ void setApple() {
 
 void WinInitial()
 {
+    
+    timer = 180;
+    length = 3;
+    result = 0;
+    free(snakeBody);
+    snakeBody = calloc(length, sizeof(*snakeBody));
     ObjectInit(&player, 500, 500, 15, 15);
-    for (int i = length; i >= 0; i--) {
-        ObjectInit(&snakeBody[length-i-1], 500 - i * 15-15  , 500, 15, 15);
+    for (int i = 0; i < length; i++) {
+        ObjectInit(&snakeBody[i], 500 - (length -i) * 15 , 500, 15, 15);
         
 
     }
-
-    length = 3;
-    result = 0;
+ 
+   
     setApple();
+    SetTimer(hWnd, IDT_BASE_TIMER, timer, NULL);
+        
 }
+
 
 void CharMove(hdc) {
     Controls(hdc);
@@ -252,21 +281,21 @@ void CharMove(hdc) {
 
 }
 
-void Boarders(HDC hdc);
 
-PObject CreateObject()
-{
-    length++;
-    PObject temp = realloc(snakeBody, sizeof(*snakeBody) * length);
-    if (temp == NULL) {       
-        free(snakeBody);
-        exit(EXIT_FAILURE);
-    }
-    else {
-        snakeBody = temp;
-    }
-    return snakeBody + length - 1;
-}
+
+//PObject CreateObject()
+//{
+//    length++;
+//    PObject temp = realloc(snakeBody, sizeof(*snakeBody) * length);
+//    if (temp == NULL) {       
+//        free(snakeBody);
+//        exit(EXIT_FAILURE);
+//    }
+//    else {
+//        snakeBody = temp;
+//    }
+//    return snakeBody + length - 1;
+//}
 
 
 void Draw(HDC dc) {
@@ -304,32 +333,36 @@ void eatingApple()
     if (collision(player, apple))
     {
         setApple();
+        timer -= 10;
+        
+        SetTimer(hWnd, IDT_BASE_TIMER, timer, NULL);
         result++;
         length++;
-        //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
+        snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
+        PlaySound(L"..\\collectApple.wav", NULL, SND_FILENAME | SND_ASYNC);
         ObjectInit(&snakeBody[length-1], snakeBody[length - 2].pos.x, snakeBody[length - 2].pos.y, 15, 15);
    }
 }
 
 void update(HDC hdc) {
     
-    if (result == 7)
-    {
-        winGame(hdc);
-    }
-    CharMove(hdc);
-    for (int i = 0; i < length; i++) {
-        if (collision(player, snakeBody[i]))
+        if (result == 10)
         {
-            gameOver(hdc);
+            winGame(hdc);
         }
-    }
-    
-    if (!newGame) {
-        eatingApple();
-        Draw(hdc);
-    }
+        CharMove(hdc);
+        for (int i = 0; i < length; i++) {
+            if (collision(player, snakeBody[i]))
+            {
+                gameOver(hdc);
+            }
+        }
 
+        if (!newGame) {
+            eatingApple();
+            Draw(hdc);
+        }
+    
 }
 void LoadImageBtm(HDC hdc, wchar_t path[]) {
 
@@ -346,7 +379,6 @@ void LoadImageBtm(HDC hdc, wchar_t path[]) {
     GetObject(hbtm, sizeof(bitmap), &bitmap);
     BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight,
         hdcMem, 0, 0, SRCCOPY);
-    //SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
     DeleteObject(hbtm);
     
@@ -371,12 +403,9 @@ void winGame(HDC hdc) {
 
     wchar_t winscreen[] = L"..\\win.bmp";
     LoadImageBtm(hdc, winscreen);
-    //snakeBody = calloc(length, sizeof(*snakeBody));
     WinInitial();
     PlaySound(L"..\\champions.wav", NULL, SND_FILENAME | SND_ASYNC);
     newGame = TRUE;
-
-    //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
     SetTimer(hWnd, IDT_TIMER2, 3000, NULL);
 }
 
@@ -384,44 +413,10 @@ void gameOver(HDC hdc) {
     
     wchar_t diescreen[] = L"..\\dieimg.bmp";
     LoadImageBtm(hdc, diescreen);
-    //snakeBody = calloc(length, sizeof(*snakeBody));
     WinInitial();
     PlaySound(L"..\\dieSound.wav", NULL, SND_FILENAME|SND_ASYNC);
     newGame = TRUE;
-    
-    //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
     SetTimer(hWnd, IDT_TIMER1, 3000, NULL);
-    
-    //DeleteDC(hdc);
-    //HWND hwndMem = WindowFromDC(hdc);
-    //
-    //CreateWindow(
-    //    L"BUTTON",  // Predefined class; Unicode assumed 
-    //    L"Restart",      // Button text 
-    //    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
-    //    700,         // x position 
-    //    500,         // y position 
-    //    100,        // Button width
-    //    100,        // Button height
-    //    hwndMem,     // Parent window
-    //    IDM_FILE_NEW,       // No menu.
-    //    (HINSTANCE)GetWindowLongPtr(hwndMem, GWLP_HINSTANCE),
-    //    NULL);
-
-    //CreateWindow(
-    //    L"BUTTON",  // Predefined class; Unicode assumed 
-    //    L"Quite",      // Button text 
-    //    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
-    //    1000,         // x position 
-    //    500,         // y position 
-    //    100,        // Button width
-    //    100,        // Button height
-    //    hwndMem,     // Parent window
-    //    IDM_FILE_QUIT,       // No menu.
-    //    (HINSTANCE)GetWindowLongPtr(hwndMem, GWLP_HINSTANCE),
-    //    NULL);
-    
-
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -435,26 +430,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     srand(time(NULL));
     MessageBoxW(NULL, L"TheBestGameEVER!!", L"First", MB_OK);
 
-    // TODO: Place code here.
+
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_THEGAME, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
-    // Perform application initialization:
- /*   if (!InitInstance (hInstance, nCmdShow))
-    {
-        return FALSE;
-    }*/
-    snakeBody = malloc( sizeof(*snakeBody) * 10);
+    
     srand(time(NULL));
     
-    
-    hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
-       0, 0, 1290, 755, NULL, NULL, hInstance, NULL);
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
+    InitInstance(hInstance, nCmdShow);
 
     hdc = GetDC(hWnd);
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_THEGAME));
@@ -462,7 +448,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     WinInitial();
-    //update(hdc);
    
     
     // Main message loop:
@@ -477,6 +462,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (msg.message == WM_QUIT) {
             break;
         }
+
+        //GetCursorPos(cursorPoint);
+
+        //ScreenToClient(hWnd, cursorPoint);
+        //cursor.x = cursorPoint[0].x;
+        //cursor.y = cursorPoint[0].y;
       
        
     }
@@ -521,41 +512,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_THEGAME));
+    wcex.hIcon          = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ICON2), IMAGE_ICON, 32, 32, 0);
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = backgroundColor;
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_THEGAME);
     wcex.lpszClassName  = szWindowClass;
-    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.hIconSm        = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ICON2), IMAGE_ICON, 16, 16, 0);;
 
     return RegisterClassExW(&wcex);
 }
 
-//void RegisterDeathScreen(void) {
-//
-//    HBRUSH hbrush = CreateSolidBrush(RGB(90, 90, 90));
-//
-//    WNDCLASSW rwc = { 0 };
-//
-//    rwc.lpszClassName = L"RedPanelClass";
-//    rwc.hbrBackground = hbrush;
-//    rwc.lpfnWndProc = DeathScreenProc;
-//    rwc.hCursor = LoadCursor(0, IDC_ARROW);
-//    RegisterClassW(&rwc);
-//}
-//
-//LRESULT CALLBACK DeathScreenProc(HWND hwnd, UINT msg,
-//    WPARAM wParam, LPARAM lParam)
-//{
-//    switch (msg) {
-//
-//    case WM_LBUTTONUP:
-//        newGame = TRUE;
-//        break;
-//
-//        return DefWindowProcW(hwnd, msg, wParam, lParam);
-//    };
-//}
+
 
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
@@ -571,8 +538,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+   hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & (~WS_MAXIMIZEBOX),
+       0, 0, 1290, 755, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
@@ -608,7 +575,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //CreateLabels(hWnd);
         GetWindowRect(hWnd, &rect);
         AddMenus(hWnd);
-        SetTimer(hWnd, IDT_BASE_TIMER, 150, NULL);
+        SetTimer(hWnd, IDT_BASE_TIMER, 200, NULL);
         break;
     case WM_KEYDOWN:
 
@@ -657,7 +624,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case IDT_TIMER1:
-            // process the gameplay timer
+            
         {
 
         LoadImageBtm(hdc, L"..\\dieimg2.bmp");
@@ -668,11 +635,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
 
         case IDT_TIMER2:
-            // process the gameplay timer
+           
         {
 
             
-            KillTimer(hWnd, IDT_TIMER1);
+            KillTimer(hWnd, IDT_TIMER2);
             enterFlag = TRUE;
 
             return 0;
@@ -695,6 +662,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         break;
 
+
     case WM_HOTKEY:
     {
         if ((wParam) == ID_HOTKEY) {
@@ -711,10 +679,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         if ((wParam) == ID_HOTKEY2) {
 
-            /*gameOver(hdcMem);*/
-            //newGame = TRUE;
-            //free(snakeBody);
-            length = 3;
             WinInitial();
             break;
 
