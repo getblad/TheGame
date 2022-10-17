@@ -44,7 +44,7 @@ HBITMAP scoreNum;
 BOOL enterFlag = FALSE;
 
 int length = 3;
-
+int timer = 200;
 
 typedef struct SPoint {
     float x, y;
@@ -102,6 +102,8 @@ void ObjectShow(TObject head, PObject obj, TObject apple, HDC dc)
         (int)(apple.pos.x + apple.size.x), (int)(apple.pos.y + apple.size.y));
 }
 
+TPoint cursor;
+LPPOINT cursorPoint;
 void  winGame(HDC);
 TObject player;
 void score(HDC);
@@ -234,6 +236,10 @@ void setApple() {
 
 void WinInitial()
 {
+    
+    timer = 200;
+    length = 3;
+    result = 0;
     ObjectInit(&player, 500, 500, 15, 15);
     for (int i = length; i >= 0; i--) {
         ObjectInit(&snakeBody[length-i-1], 500 - i * 15-15  , 500, 15, 15);
@@ -241,10 +247,12 @@ void WinInitial()
 
     }
 
-    length = 3;
-    result = 0;
+   
     setApple();
+    SetTimer(hWnd, IDT_BASE_TIMER, timer, NULL);
+        
 }
+
 
 void CharMove(hdc) {
     Controls(hdc);
@@ -304,6 +312,9 @@ void eatingApple()
     if (collision(player, apple))
     {
         setApple();
+        timer -= 20;
+        
+        SetTimer(hWnd, IDT_BASE_TIMER, timer, NULL);
         result++;
         length++;
         //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
@@ -313,7 +324,7 @@ void eatingApple()
 
 void update(HDC hdc) {
     
-    if (result == 7)
+    if (result == 10)
     {
         winGame(hdc);
     }
@@ -375,7 +386,7 @@ void winGame(HDC hdc) {
     WinInitial();
     PlaySound(L"..\\champions.wav", NULL, SND_FILENAME | SND_ASYNC);
     newGame = TRUE;
-
+    
     //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
     SetTimer(hWnd, IDT_TIMER2, 3000, NULL);
 }
@@ -447,7 +458,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }*/
-    snakeBody = malloc( sizeof(*snakeBody) * 10);
+    snakeBody = calloc(10, sizeof(*snakeBody));
     srand(time(NULL));
     
     
@@ -477,6 +488,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (msg.message == WM_QUIT) {
             break;
         }
+
+        //GetCursorPos(cursorPoint);
+
+        //ScreenToClient(hWnd, cursorPoint);
+        //cursor.x = cursorPoint[0].x;
+        //cursor.y = cursorPoint[0].y;
       
        
     }
@@ -608,7 +625,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         //CreateLabels(hWnd);
         GetWindowRect(hWnd, &rect);
         AddMenus(hWnd);
-        SetTimer(hWnd, IDT_BASE_TIMER, 150, NULL);
+        SetTimer(hWnd, IDT_BASE_TIMER, 200, NULL);
         break;
     case WM_KEYDOWN:
 
@@ -694,6 +711,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         SetWindowTextW(hwndSta2, buf);*/
 
         break;
+    case WM_LBUTTONDOWN:
+
 
     case WM_HOTKEY:
     {
