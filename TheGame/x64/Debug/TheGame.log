@@ -1,1 +1,15 @@
-﻿  TheGame.vcxproj -> C:\Users\Admin\masa-introduction\The Game\TheGame\x64\Debug\TheGame.exe
+﻿  TheGame.c
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(124,25): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(125,24): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(250,37): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(250,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(266,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(279,17): warning C4047: 'function': 'HDC' differs in levels of indirection from 'int'
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(279,14): warning C4024: 'Controls': different types for formal and actual parameter 1
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(381,13): warning C4101: 'oldBitmap': unreferenced local variable
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(378,17): warning C4101: 'ps': unreferenced local variable
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(477,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(493,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(655,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(655,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+  TheGame.vcxproj -> C:\Users\Admin\masa-introduction\The Game\TheGame\x64\Debug\TheGame.exe

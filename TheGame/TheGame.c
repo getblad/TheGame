@@ -43,6 +43,7 @@ HDC hdc;
 HBITMAP scoreNum;
 BOOL enterFlag = FALSE;
 
+
 int length = 3;
 int timer = 200;
 
@@ -77,6 +78,8 @@ typedef struct SObject {
     TDirection direction;
 } TObject, *PObject;
 
+TObject apple;
+
 void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height) {
     obj -> pos = point(xPos, yPos);
     obj->size = point(width, height);
@@ -84,7 +87,7 @@ void ObjectInit(TObject* obj, float xPos, float yPos, float width, float height)
     obj->direction = direction(0,0,0,1);
 }
 
-void ObjectShow(TObject head, PObject obj, TObject apple, HDC dc)
+void ObjectShow(TObject head, PObject obj, HDC dc)
 {
     SelectObject(dc, GetStockObject(DC_PEN));
     SetDCPenColor(dc, RGB(0, 0, 0));
@@ -92,7 +95,7 @@ void ObjectShow(TObject head, PObject obj, TObject apple, HDC dc)
     SetDCBrushColor(dc, obj->brush);
     Ellipse(dc, (int)(head.pos.x), (int)(head.pos.y),
         (int)(head.pos.x + head.size.x), (int)(head.pos.y + head.size.y));
-    for (int i = 0; i <= length; i++) {
+    for (int i = 0; i < length; i++) {
         Ellipse(dc, (int)(obj[i].pos.x), (int)(obj[i].pos.y),
             (int)(obj[i].pos.x + obj[i].size.x), (int)(obj[i].pos.y + obj[i].size.y));
 
@@ -113,8 +116,10 @@ HBITMAP hbtm;
 HWND hWnd;
 void gameOver(HDC);
 PObject snakeBody = NULL;
+PObject snakeBody2 = NULL;
 int result = 0;
-TObject apple;
+int ticker = 0;
+
 BOOL collision(TObject obj1, TObject obj2) {
     if (abs(obj1.pos.x  - obj2.pos.x) < ((obj1.size.x + obj2.size.x)/2) &&
         abs(obj1.pos.y - obj2.pos.y) < ((obj1.size.y + obj2.size.y) / 2))
@@ -217,10 +222,26 @@ void Controls(HDC hdc)
         gameOver(hdc);
         
     }
-    if (GetKeyState('W') < 0 && (player.direction.down != 1)) player.direction = direction(1, 0, 0, 0);
-    if (GetKeyState('A') < 0 && (player.direction.right != 1)) player.direction = direction(0, 0, 1, 0);
-    if (GetKeyState('S') < 0 && (player.direction.up != 1)) player.direction = direction(0, 1, 0, 0);
-    if (GetKeyState('D') < 0 && (player.direction.left != 1)) player.direction = direction(0, 0, 0, 1);
+    if (GetAsyncKeyState('W') < 0 && !player.direction.down && !player.direction.up)
+    {
+        player.direction = direction(1, 0, 0, 0);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    };
+    if (GetAsyncKeyState('A') < 0 && !player.direction.left && !player.direction.right)
+    {
+        player.direction = direction(0, 0, 1, 0);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
+    if (GetAsyncKeyState('S') < 0 && !player.direction.down && !player.direction.up)
+    {
+        player.direction = direction(0, 1, 0, 0);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
+    if (GetAsyncKeyState('D') < 0 && !player.direction.left && !player.direction.right)
+    {
+        player.direction = direction(0, 0, 0, 1);
+        PlaySound(L"..\\move.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
 
 };
 
@@ -285,7 +306,7 @@ void Draw(HDC dc) {
     SetDCBrushColor(memDC, RGB(255, 255, 255));
     Rectangle(memDC, 0, 0, 1280, 720);
     Boarders(memDC);
-    ObjectShow(player, snakeBody, apple, memDC);
+    ObjectShow(player, snakeBody, memDC);
     score(memDC);
 
     BitBlt(dc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, memDC, 0, 0, SRCCOPY);
@@ -312,34 +333,38 @@ void eatingApple()
     if (collision(player, apple))
     {
         setApple();
-        timer -= 20;
+        timer -= 15;
         
         SetTimer(hWnd, IDT_BASE_TIMER, timer, NULL);
         result++;
         length++;
+        memcpy(snakeBody2, snakeBody, length);
+        free(snakeBody);
         //snakeBody = realloc(snakeBody, sizeof(*snakeBody) * length);
-        ObjectInit(&snakeBody[length-1], snakeBody[length - 2].pos.x, snakeBody[length - 2].pos.y, 15, 15);
+        ObjectInit(&snakeBody2[length-1], snakeBody2[length - 2].pos.x, snakeBody2[length - 2].pos.y, 15, 15);
    }
 }
 
 void update(HDC hdc) {
-    
-    if (result == 10)
-    {
-        winGame(hdc);
-    }
-    CharMove(hdc);
-    for (int i = 0; i < length; i++) {
-        if (collision(player, snakeBody[i]))
+
+
+        if (result == 10)
         {
-            gameOver(hdc);
+            winGame(hdc);
         }
-    }
-    
-    if (!newGame) {
-        eatingApple();
-        Draw(hdc);
-    }
+        CharMove(hdc);
+        for (int i = 0; i < length; i++) {
+            if (collision(player, snakeBody[i]))
+            {
+                gameOver(hdc);
+            }
+        }
+
+        if (!newGame) {
+            eatingApple();
+            Draw(hdc);
+        }
+  
 
 }
 void LoadImageBtm(HDC hdc, wchar_t path[]) {
@@ -538,7 +563,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_THEGAME));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SMALL));
     wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = backgroundColor;
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_THEGAME);
