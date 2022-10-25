@@ -112,7 +112,7 @@ BOOL newGame = FALSE;
 HBITMAP hbtm;
 HWND hWnd;
 void gameOver(HDC);
-PObject snakeBody = NULL;
+PObject snakeBody;
 int result = 0;
 TObject apple;
 int ticks = 0;
@@ -264,8 +264,6 @@ void WinInitial()
     ObjectInit(&player, 500, 500, 15, 15);
     for (int i = 0; i < length; i++) {
         ObjectInit(&snakeBody[i], 500 - (length -i) * 15 , 500, 15, 15);
-        
-
     }
  
    
@@ -281,21 +279,6 @@ void CharMove(hdc) {
 
 }
 
-
-
-//PObject CreateObject()
-//{
-//    length++;
-//    PObject temp = realloc(snakeBody, sizeof(*snakeBody) * length);
-//    if (temp == NULL) {       
-//        free(snakeBody);
-//        exit(EXIT_FAILURE);
-//    }
-//    else {
-//        snakeBody = temp;
-//    }
-//    return snakeBody + length - 1;
-//}
 
 
 void Draw(HDC dc) {
@@ -462,12 +445,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         if (msg.message == WM_QUIT) {
             break;
         }
-
-        //GetCursorPos(cursorPoint);
-
-        //ScreenToClient(hWnd, cursorPoint);
-        //cursor.x = cursorPoint[0].x;
-        //cursor.y = cursorPoint[0].y;
       
        
     }
@@ -564,15 +541,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    //wchar_t buf[10];
+    
     
     switch (message)
     {
     case WM_CREATE:
 
+        CenterWindow(hWnd);
         RegisterHotKey(hWnd, ID_HOTKEY, MOD_CONTROL, 0x43);
         RegisterHotKey(hWnd, ID_HOTKEY2, NULL, 0x52);
-        //CreateLabels(hWnd);
         GetWindowRect(hWnd, &rect);
         AddMenus(hWnd);
         SetTimer(hWnd, IDT_BASE_TIMER, 200, NULL);
@@ -609,14 +586,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             SendMessage(hWnd, WM_CLOSE, 0, 0);
             break;
-       /* case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);*/
+       
         }
 
         break;
@@ -636,9 +606,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case IDT_TIMER2:
            
-        {
-
-            
+        {            
             KillTimer(hWnd, IDT_TIMER2);
             enterFlag = TRUE;
 
@@ -647,20 +615,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case IDT_BASE_TIMER:
             if (!newGame) {
                 update(hdc);
+                return 0;
             }
                 
         }
-    case WM_MOVE:
-
-        /*GetWindowRect(hWnd, &rect);*/
-
-        /*StringCbPrintfW(buf,sizeof(buf), L"%ld", rect.left);
-        SetWindowTextW(hwndSta1, buf);
-
-        StringCbPrintfW(buf, sizeof(buf), L"%ld", rect.top);
-        SetWindowTextW(hwndSta2, buf);*/
-
-        break;
 
 
     case WM_HOTKEY:
@@ -690,8 +648,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            
-            //HPEN hPen = CreatePen(PS_SOLID, 4, RGB(255, 128, 0));
             // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }
@@ -707,28 +663,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-//void CreateLabels(HWND hwnd) {
-//
-//    CreateWindowW(L"static", L"x: ",
-//        WS_CHILD | WS_VISIBLE,
-//        10, 10, 25, 25,
-//        hwnd, (HMENU)1, NULL, NULL);
-//
-//    hwndSta1 = CreateWindowW(L"static", L"150",
-//        WS_CHILD | WS_VISIBLE,
-//        40, 10, 55, 25,
-//        hwnd, (HMENU)2, NULL, NULL);
-//
-//    CreateWindowW(L"static", L"y: ",
-//        WS_CHILD | WS_VISIBLE,
-//        10, 30, 25, 25,
-//        hwnd, (HMENU)3, NULL, NULL);
-//
-//    hwndSta2 = CreateWindowW(L"static", L"150",
-//        WS_CHILD | WS_VISIBLE,
-//        40, 30, 55, 25,
-//        hwnd, (HMENU)4, NULL, NULL);
-//}
 
 // Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -783,21 +717,3 @@ void AddMenus(HWND hwnd) {
 
 
 
-//void Snake(HWND hwnd) {
-//    HDC hdc;
-//    PAINTSTRUCT ps;
-//    hdc = BeginPaint(hwnd, &ps);
-//
-//    MoveToEx(hdc, 50, 50, NULL);
-//    LineTo(hdc, 250, 50);
-//
-//    HPEN hWhitePen = GetStockObject(WHITE_PEN);
-//    HPEN hOldPen = SelectObject(hdc, hWhitePen);
-//
-//    MoveToEx(hdc, 50, 100, NULL);
-//    LineTo(hdc, 250, 100);
-//
-//    SelectObject(hdc, hOldPen);
-//
-//    EndPaint(hwnd, &ps);
-//}
