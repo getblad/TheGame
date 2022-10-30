@@ -286,8 +286,8 @@ void Draw(HDC dc) {
     HBITMAP memBM = CreateCompatibleBitmap(dc,rect.right- rect.left, rect.bottom - rect.top );
     SelectObject(memDC, memBM);
     SelectObject(memDC, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(memDC, RGB(255, 255, 255));
-    Rectangle(memDC, 0, 0, 1280, 720);
+    SetDCBrushColor(memDC, RGB(93, 205, 138));
+    Rectangle(memDC, 0, 0, 1270, 670);
     Boarders(memDC);
     ObjectShow(player, snakeBody, apple, memDC);
     score(memDC);
