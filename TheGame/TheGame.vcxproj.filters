@@ -27,9 +27,18 @@
     <ClInclude Include="TheGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheGame.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,19 +1,17 @@
-﻿  TheGame.c
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(122,25): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(123,24): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(248,37): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(248,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(266,39): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(277,17): warning C4047: 'function': 'HDC' differs in levels of indirection from 'int'
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(277,14): warning C4024: 'Controls': different types for formal and actual parameter 1
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(355,13): warning C4101: 'oldBitmap': unreferenced local variable
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(352,17): warning C4101: 'ps': unreferenced local variable
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(413,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(424,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(552,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
-C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(552,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
+﻿  Core.c
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\Core.c(78,27): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\Core.c(79,24): warning C4244: 'function': conversion from 'float' to 'int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\Core.c(181,37): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\Core.c(181,56): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\Core.c(197,39): warning C4244: 'function': conversion from 'int' to 'float', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\Core.c(270,13): warning C4101: 'oldBitmap': unreferenced local variable
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\Core.c(267,17): warning C4101: 'ps': unreferenced local variable
+  TheGame.c
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(16,11): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(76,46): warning C4047: 'function': 'UINT' differs in levels of indirection from 'void *'
+C:\Users\Admin\masa-introduction\The Game\TheGame\TheGame\TheGame.c(76,42): warning C4024: 'RegisterHotKey': different types for formal and actual parameter 3
   Generating code
-  0 of 25 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  6 of 25 functions (24.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
